@@ -1,0 +1,257 @@
+# ASR- Note: Standardized version of CLEWS-<RGN>.yaml
+#   Objective:
+#       1- build.py is inependent of yaml file name specifics
+#       2- yaml files drives the build.py exection flow
+# clewsy build parameterization yaml file
+#   Variable definitions to update MoManI | Append/Update otoole models
+
+# YAML TAG Naming rule: String lenght <= 32 chars
+
+Acronym_dict: {
+
+# Country codes:
+  GUY: 'Guyana',
+  BIOGUYXX: 'Biomass',
+  COA: 'Coal',
+  COAGUY: 'Coal',
+  COAINT: 'Coal',
+  COG: 'Cogeneration',
+  COGGUY: 'Cogeneration',
+  COGINT: 'Cogeneration',
+  CSPGUYXX: 'Concentrated Solar Power',
+  ELCGUYXX01: 'Electricity from power plants in the General Region',
+  ELCGUYXX02: 'Electricity from transmission in the General Region',
+  GAS: 'Natural Gas',
+  GASGUY: 'Natural Gas',
+  GASINT: 'Natural Gas',
+  GEOGUYXX: 'Geothermal',
+  HYDGUYXX: 'Hydropower',
+  OIL: 'Oil',
+  OILGUY: 'Oil',
+  OILINT: 'Oil',
+  OTH: 'Other',
+  OTHGUY: 'Other',
+  OTHINT: 'Other',
+  PET: 'Petroleum',
+  PETGUY: 'Petroleum',
+  PETINT: 'Petroleum',
+  SPVGUYXX: 'Solar',
+  URN: 'Nuclear',
+  URNGUY: 'Nuclear',
+  URNINT: 'Nuclear',
+  WASGUYXX: 'Waste',
+  WAVGUYXX: 'Wave',
+  WOFGUYXX: 'Offshore wind',
+  WONGUYXX: 'Onshore wind',
+  RENGUY: 'Rest Renewables',
+
+# Model Land, Water parameters: Irrigation type, Rainfed,...
+  OTHLNDUSE: 'OtherLandUse',
+  EVAPPRC_OTHLNDUSE: ' EvapotranspirationPercentPRCOtherLandUse',
+  GNDWTREX_OTHLNDUSE: 'GroundwaterPercentofExcessOtherLandUse:',
+  GNDWTREX: 'GroundwaterPercentofExcess',
+  XFRMTECH: 'TransformationTechnologies',
+
+# Naming Convention for AgriculturalResidualCapacity
+  RAP: 'Rapeseed (canola)',
+  MZE: 'Maize',
+  WHT:  'Wheat',
+  SWI: 'Switchgrass',
+  HI:  'High intensity Irrigated',
+  IR:  'Intermediate intensity Rainfed',
+  II:  'Intermediate intensity Irrigated',
+  AGRI_RESCAP: 'AgriculturalResidualCapacityRetirementYears',
+  CRPYLD: 'CropYieldFactors',
+  AGRI_RESCAP_HZN: 'AgriculturalResidualCapacityRetirementYears'
+}
+
+# Model external dependencies: Directories & Files
+################################################################
+Model: CLEWS-GUY
+Debug: 0
+OutputFormat: append_otoole
+OperationModes: 'optn_mds.txt'
+otooleOutputDirectory: 'data-out'
+DataDirectoryName: '/localhome/jka358/mount/CLEWs_GAEZ/GAEZ_Processing/Data/output/summary_stats'
+OsemosysGlobalPath: '/localhome/jka358/mount/osemosys_global/results/Guy/data'
+ClusterBaseFileName: clustering_results_
+PrecipitationClusterBaseFileName: clustering_results_prc_
+EvapotranspirationClusterBaseFileName: clustering_results_evt_
+IrrigationWaterDeficitClusterBaseFileName: clustering_results_cwd_
+
+# Model Time Space parameters: Years, Land, Regions,... TimeSlices
+################################################################
+Years:
+  - 2021
+  - 2022
+  - 2023
+  - 2024
+  - 2025
+  - 2026
+  - 2027
+  - 2028
+  - 2029
+  - 2030
+  - 2031
+  - 2032
+  - 2033
+  - 2034
+  - 2035
+  - 2036
+  - 2037
+  - 2038
+  - 2039
+  - 2040
+  - 2041
+  - 2042
+  - 2043
+  - 2044
+  - 2045
+  - 2046
+  - 2047
+  - 2048
+  - 2049
+  - 2050
+
+LandRegions:
+  - BAR
+  - CUY
+  - DEM
+  - EAS
+  - ESS
+  - MAH
+  - POM
+  - POT
+  - UPP
+
+LandToGridMap: {
+  BAR: GUYXX,
+  CUY: GUYXX,
+  DEM: GUYXX,
+  EAS: GUYXX,
+  ESS: GUYXX,
+  MAH: GUYXX,
+  POM: GUYXX,
+  POT: GUYXX,
+  UPP: GUYXX,
+}
+
+LandUseCodes: {
+  BAR: Barren and sparsely vegetated land,
+  FOR: Forest land,
+  GRS: Grassland & woodland,
+  BLT: Built-up land,
+  WAT: Water bodies,
+  OTH: Other agricultural land  # Do we need this at all???
+}
+
+Regions: {GLOBAL: ['Global', '#000000']}
+
+Timeslices: { #data from osemosys_global
+  S1D4: ['Season 1 baseload', '#000000'],
+  S1D1: ['Season 1 intermediate', '#cc9900'],
+  S1D2: ['Season 1 peak', '#00cc66'],
+  S1D3: ['Season 1 peak', '#00cc66'],
+  S2D4: ['Season 2 baseload', '#ffffcc'],
+  S2D1: ['Season 2 intermediate', '#99ff66'],
+  S2D2: ['Season 2 peak', '#cc3333'],
+  S2D3: ['Season 2 peak', '#cc3333']
+}
+
+# Model Land, Water parameters: Irrigation type, Rainfed,...
+################################################################
+IntensityList: {
+  L: Low,
+  I: Intermediate,
+  H: High  # DEFAULT
+}
+
+IrrigationTypeList: {
+  R: Rain-fed,
+  I: Irrigation # DEFAULT
+}
+
+EvapotranspirationPercentPRCOtherLandUse: {
+  # Percentages taken from Bolivia model by Abhi.
+  BAR: 0.773,
+  FOR: 0.691,
+  GRS: 0.694,  # Numbers from Bolivia.  SET is settled, or BLT.
+  BLT: 0.631,
+  WAT: 0.571,
+  OTH: 0.694   # Used GRS for OTH
+  # DEFAULT
+}
+
+GroundwaterPercentofExcessOtherLandUse: {
+  # Since other land types are more likely to have a different ratio.
+  BAR: 0.009,
+  FOR: 0.077,
+  GRS: 0.051,
+  BLT: 0.072,  # Numbers from water ratios from Bolivia.  SET is BLT.
+  WAT: 0.017,
+  OTH: 0.051   # Used GRS for OTH
+  # DEFAULT
+}
+
+# Precent of excess water (Irrigation + Precipitation - Evapotranspiration) that returns as groundwater.  Rest returns as Runoff.
+# GroundwaterPercentofExcess: Value for grassland. Need a better number...
+GroundwaterPercentofExcess: 0.051 # Default
+
+# Model Energy parameters: Fuels, Transformation Tech,...
+################################################################
+EndUseFuels: {
+  IND: ['COA', 'LPG', 'KER', 'DSL', 'HFO', 'OHC', 'BIO', 'NGS', 'ELCGUYXX02'],
+  RES: ['LPG', 'KER', 'BIO', 'NGS', 'ELCGUYXX02'],
+  COM: ['KER', 'DSL', 'LPG', 'BIO', 'NGS', 'ELCGUYXX02'],
+  AGR: ['DSL', 'ELCGUYXX02'],
+  TRA: ['GSL', 'KER', 'DSL', 'HFO', 'NGS', 'ELCGUYXX02'] # ELC만 바꿈
+}
+
+ImportFuels: ['COA', 'CRU', 'LPG', 'GSL', 'KER', 'DSL', 'HFO'] # DEFAULT
+
+ExportFuels: ['COA', 'NGS', 'CRU', 'GSL', 'KER', 'HFO', 'BIO'] # DEFAULT
+
+DomesticMining: ['COA', 'NGS', 'CRU'] #DEFAULT
+
+DomesticRenewables: ['WND', 'HYD', 'BIO', 'SOL', 'GEO'] # DEFAULT
+
+# Note:  Transformation technologies assume that their fuels are created elsewhere (either in the DomesticMining, DomesticRenewables or ImportFuels.
+TransformationTechnologies: [
+    ['PWRTRNA01', 'ELCGUYXX01', '1.11', 'ELCGUYXX02', '1', 'Power transmission Guyana', '1'],  # 90% efficient transmission system (losses)
+
+    # Structure of data is:  [Tech, InFuel, IAR, OutFuel, OAR, Name, Mode]
+    # If the FUEL is '' that piece will not be created.
+    # Name is used only the first time this technology shows up.  Fuels are created only if needed.
+    # If multiple lines for the same technology, this technology will have multiple input and output activity ratios.
+    # Note:  This section can also be used to add input or output fuels to various technologies (cooling water, for example)
+    ## Removed all of the switch grass
+]
+# Power Plants: #Data from osemosys_global
+PowerPlants: {
+}
+
+Emissions: {
+  CO2: ['Carbon dioxide emissions.', '#000000']}
+
+# Model Agriculture & Crop yield  parameters:
+################################################################
+# AgriculturalResidualCapacityRetirementYears
+AgriculturalResidualCapacityRetirementYears: 15
+
+CropYieldFactors: { #keep, change names to match clustering
+    CON: 1,
+    SGC: 1,
+    CAS: 1,
+    MZE: 1,
+    COC: 1,
+    OTH: 1,
+
+}
+
+AgriculturalResidualCapacity: {
+
+}
+AgriculturalCapitalCost: [
+]
+
+
