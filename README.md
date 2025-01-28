@@ -12,6 +12,6 @@
 1) ./src/build/clewsy.py CLEWS-GUY.yaml
 2) otoole convert csv datafile data-out data-test.txt clewsy_otoole_config.yaml
 3) python preprocess_data.py otoole data-test.txt data-test-pp.txt
-4)' glpsol -m OSeMOSYS-pp.txt -d data-test-pp.txt --wlp data.lp --check'
+4) glpsol -m OSeMOSYS-pp.txt -d data-test-pp.txt --wlp data.lp --check
 5) cbc data.lp solve -solu dataGUY.sol
-6) otoole -v results cbc csv dataGUY.sol results datafile data-test.txt coonfig_otoole.yaml
+6) otoole -v results cbc csv dataGUY.sol results csv data-out config_otoole.yaml
