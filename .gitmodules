@@ -1,6 +1,6 @@
-[submodule "osemosys_global"]
-	path = osemosys_global
-	url = https://github.com/OSeMOSYS/osemosys_global.git
-[submodule "clewsy"]
-	path = clewsy
+[submodule "submodules/clewsy"]
+	path = submodules/clewsy
 	url = https://github.com/OSeMOSYS/clewsy.git
+[submodule "submodules/osemosys_global"]
+	path = submodules/osemosys_global
+	url = https://github.com/OSeMOSYS/osemosys_global.git
