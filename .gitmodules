@@ -4,3 +4,7 @@
 [submodule "submodules/osemosys_global"]
 	path = submodules/osemosys_global
 	url = https://github.com/OSeMOSYS/osemosys_global.git
+[submodule "submodules/CLEWs_GAEZ"]
+	path = submodules/CLEWs_GAEZ
+	url = https://github.com/OSeMOSYS/CLEWs_GAEZ.git
+	branch = CLEWs_Global
