@@ -18,9 +18,9 @@ rule geoclews:
     output:
         "submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/Guyana/summary_stats/GUY_LandCover_byCluster_summary.csv"
     conda:
-        "../submodules/CLEWs_GAEZ/environment.yml"
+        "GeoCLEWs"
     script:
-        "scripts/geoclews.sh"
+        "scripts/geoclews.py"
 
 
 rule osemosys:
@@ -29,7 +29,7 @@ rule osemosys:
     output:
         "submodules/osemosys_global/results/India/otoole.yaml"
     conda:
-        "../submodules/osemosys_global/workflow/envs/osemosys-global.yaml"
+        "osemosys-global"
     script:
         "scripts/main.py"
 
