@@ -2,6 +2,17 @@ rule all:
     input:
         "test/something.txt"
 
+
+rule collect:
+    input:
+        "../submodules/osemosys_global/results/India/otoole.yaml"
+        "../submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/Guyana/summary_stats/GUY_LandCover_byCluster_summary.csv"
+    output:
+        "test/something.txt"
+    shell:
+        "echo 'Done!!!!' > {output} "
+
+
 rule geoclews:
     input:
         "../submodules/CLEWs_GAEZ/GAEZ_Processing/user_input/config.yaml"
@@ -12,6 +23,7 @@ rule geoclews:
     script:
         "../submodules/CLEWs_GAEZ/GAEZ_Processing/main.py"
 
+
 rule osemosys:
     input:
         "../submodules/osemosys_global/config/config.yaml"
@@ -21,12 +33,3 @@ rule osemosys:
         "../submodules/osemosys_global/workflow/envs/osemosys-global.yaml"
     shell:
         "cd submodules/osemosys && snakemake j10 && cd ../.."
-
-rule collect:
-    input:
-        "../submodules/osemosys_global/results/India/otoole.yaml"
-        "../submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/Guyana/summary_stats/GUY_LandCover_byCluster_summary.csv"
-    output:
-        "test/something.txt"
-    shell:
-        "echo 'Done!!!!' > {output} "
