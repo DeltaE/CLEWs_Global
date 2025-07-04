@@ -22,7 +22,7 @@ rule osemosys:
     shell:
         "cd submodules/osemosys && snakemake j10 && cd ../.."
 
-rule final:
+rule collect:
     input:
         "../submodules/osemosys_global/results/India/otoole.yaml"
         "../submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/Guyana/summary_stats/GUY_LandCover_byCluster_summary.csv"
