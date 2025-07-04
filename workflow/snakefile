@@ -31,4 +31,4 @@ rule osemosys:
     conda:
         "submodules/osemosys_global/workflow/envs/osemosys-global.yaml"
     shell:
-        "snakemake j10"
+        "snakemake -j 10"
