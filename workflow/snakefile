@@ -20,7 +20,7 @@ rule geoclews:
     conda:
         "../submodules/CLEWs_GAEZ/environment.yml"
     script:
-        "submodules/CLEWs_GAEZ/GAEZ_Processing/main.py"
+        "../submodules/CLEWs_GAEZ/GAEZ_Processing/main.py"
 
 
 rule osemosys:
