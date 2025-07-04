@@ -5,7 +5,7 @@ rule all:
 
 rule collect:
     input:
-        "../submodules/osemosys_global/results/India/otoole.yaml", "../submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/Guyana/summary_stats/GUY_LandCover_byCluster_summary.csv"
+        "submodules/osemosys_global/results/India/otoole.yaml", "submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/Guyana/summary_stats/GUY_LandCover_byCluster_summary.csv"
     output:
         "test/something.txt"
     shell:
@@ -16,11 +16,11 @@ rule geoclews:
     input:
         "submodules/CLEWs_GAEZ/GAEZ_Processing/user_input/config.yaml"
     output:
-        "../submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/Guyana/summary_stats/GUY_LandCover_byCluster_summary.csv"
+        "submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/Guyana/summary_stats/GUY_LandCover_byCluster_summary.csv"
     conda:
         "../submodules/CLEWs_GAEZ/environment.yml"
     script:
-        "../submodules/CLEWs_GAEZ/GAEZ_Processing/main.py"
+        "submodules/CLEWs_GAEZ/GAEZ_Processing/main.py"
 
 
 rule osemosys:
