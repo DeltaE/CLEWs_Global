@@ -14,7 +14,7 @@ rule collect:
 
 rule geoclews:
     input:
-        "../submodules/CLEWs_GAEZ/GAEZ_Processing/user_input/config.yaml"
+        "submodules/CLEWs_GAEZ/GAEZ_Processing/user_input/config.yaml"
     output:
         "../submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/Guyana/summary_stats/GUY_LandCover_byCluster_summary.csv"
     conda:
@@ -25,7 +25,7 @@ rule geoclews:
 
 rule osemosys:
     input:
-        "../submodules/osemosys_global/config/config.yaml"
+        "submodules/osemosys_global/config/config.yaml"
     output:
         "../submodules/osemosys_global/results/India/otoole.yaml"
     conda:
