@@ -30,5 +30,6 @@ rule osemosys:
         "submodules/osemosys_global/results/India/otoole.yaml"
     conda:
         "../submodules/osemosys_global/workflow/envs/osemosys-global.yaml"
-    shell:
-        "snakemake -j 10"
+    script:
+        "scripts/main.py"
+
