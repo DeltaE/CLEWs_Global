@@ -27,7 +27,7 @@ rule osemosys:
     input:
         "submodules/osemosys_global/config/config.yaml"
     output:
-        "../submodules/osemosys_global/results/India/otoole.yaml"
+        "submodules/osemosys_global/results/India/otoole.yaml"
     conda:
         "../submodules/osemosys_global/workflow/envs/osemosys-global.yaml"
     shell:
