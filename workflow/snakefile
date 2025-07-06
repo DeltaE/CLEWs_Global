@@ -81,8 +81,8 @@ onerror:
 
 # file creation check
 
-if not os.path.isdir(Path('workflow/submodules/osemosys_global/results', 'data')):
-    Path('workflow/submodules/osemosys_global/results', 'data').mkdir(parents=True)
+if not os.path.isdir(Path('results', 'data')):
+    Path('results', 'data').mkdir(parents=True)
 
 # target rules
 
