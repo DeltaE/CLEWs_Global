@@ -2,7 +2,7 @@ from snakemake.utils import min_version
 min_version("8.0")
 
 
-workdir: "../submodules/osemosys_global/"
+workdir: "submodules/osemosys_global/"
 module other_workflow:
     snakefile:
         "../submodules/osemosys_global/workflow/snakefile"
