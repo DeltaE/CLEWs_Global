@@ -7,93 +7,11 @@ min_version("8.0")
 
 configfile: 'config/config.yaml'
 
-# helper functions
 
-def get_otoole_data(otoole_config: str, var: str) -> list[str]:
-    """Gets parameter/result files to be created"""
+module other_workflow:
+    # here, plain paths, URLs and the special markers for code hosting providers (see below) are possible.
+    snakefile: "workflow/submodules/osemosys_global/workflow/snakefile"
+    config: config["osemosys_global"]
 
-    assert var in ("param", "result", "set")
+use rule * from other_workflow as other_*
 
-    with open(otoole_config) as f:
-        otoole = yaml.safe_load(f)
-
-    results = [x for x in otoole if otoole[x]["type"] == var]
-
-    # no result calcualtions
-    missing = [
-        # storage investment not guaranteed
-        "NewStorageCapacity",
-        "TotalDiscountedStorageCost",
-        "SalvageValueStorage",
-        "CapitalInvestmentStorage",
-        "DiscountedCapitalInvestmentStorage",
-        "DiscountedSalvageValueStorage",
-        "DiscountedCostByStorage",
-        # storage levels not guaranteed
-        "StorageLevelSeasonStart",
-        "StorageLevelSeasonFinish",
-        "StorageLevelYearStart",
-        "StorageLevelYearFinish",
-        "StorageLevelDayTypeStart",
-        "StorageLevelDayTypeFinish",
-        "StorageLowerLimit",
-        "StorageUpperLimit",
-        "CapitalInvestmentStorage",
-        "DiscountedCapitalInvestmentStorage",
-        "DiscountedCostByStorage",
-        "DiscountedSalvageValueStorage",
-        "NetChargeWithinDay",
-        "NetChargeWithinYear",
-        # other missing calcs
-        "NumberOfNewTechnologyUnits",
-        "Trade",
-        "ModelPeriodEmissions",
-    ]
-
-    return [x for x in results if x not in missing]
-
-# constants
-
-OTOOLE_YAML = "workflow/submodules/osemosys_global/resources/otoole.yaml"
-OTOOLE_PARAMS = get_otoole_data(OTOOLE_YAML, "param")
-OTOOLE_RESULTS = get_otoole_data(OTOOLE_YAML, "result")
-
-COUNTRIES = config["geographic_scope"]
-
-# rules
-
-include: "submodules/osemosys_global/workflow/rules/preprocess.smk"
-include: "submodules/osemosys_global/workflow/rules/model.smk"
-include: "submodules/osemosys_global/workflow/rules/retrieve.smk"
-
-# handlers
-
-onsuccess:
-    shell(f"python submodules/osemosys_global/workflow/scripts/osemosys_global/check_backstop.py {config['scenario']}")
-    print('Workflow finished successfully!')
-
-    # Will fix this in next update so that preprocessing steps dont always need to be rerun
-    [f.unlink() for f in Path('results', 'data').glob("*") if f.is_file()]
-
-onerror:
-    print('An error occurred, please submit issue to '
-        'https://github.com/OSeMOSYS/osemosys_global/issues')
-
-# file creation check
-
-if not os.path.isdir(Path('submodules/osemosys_global/results', 'data')):
-    Path('submodules/osemosys_global/results', 'data').mkdir(parents=True)
-
-# target rules
-
-wildcard_constraints:
-    scenario="[A-Za-z0-9]+"
-
-rule all:
-    message:
-        "Generating input CSV data..."
-    input:
-        csv_files = expand('results/{scenario}/data/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
-
-rule osemosys_global_data:
-    input:
