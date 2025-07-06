@@ -5,6 +5,8 @@ min_version("8.0")
 
 # helper functions
 
+configfile: 'config/config.yaml'
+
 def get_otoole_data(otoole_config: str, var: str) -> list[str]:
     """Gets parameter/result files to be created"""
 
