@@ -81,8 +81,8 @@ onerror:
 
 # file creation check
 
-if not os.path.isdir(Path('results', 'data')):
-    Path('results', 'data').mkdir(parents=True)
+if not os.path.isdir(Path('workflow/submodules/osemosys_global/results', 'data')):
+    Path('workflow/submodules/osemosys_global/results', 'data').mkdir(parents=True)
 
 # target rules
 
@@ -93,4 +93,4 @@ rule all:
     message:
         "Generating input CSV data..."
     input:
-        csv_files = expand('results/{scenario}/data/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
+    csv_files = expand('workflow/submodules/osemosys_global/results/{scenario}/data/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
