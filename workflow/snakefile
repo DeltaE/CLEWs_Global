@@ -3,7 +3,7 @@ min_version("8.0")
 
 module other_workflow:
     snakefile:
-        "../submodules/osemosys_global/workflow/snakefile"
+        "/var/home/jka358/share/hdd/CLEWs_Global/submodules/osemosys_global/workflow/snakefile"
 
 use rule * from other_workflow as other_*
 
