@@ -11,7 +11,7 @@ configfile: 'config/config.yaml'
 module other_workflow:
     # here, plain paths, URLs and the special markers for code hosting providers (see below) are possible.
     snakefile: "submodules/osemosys_global/workflow/snakefile"
-    workdir: "submodules/osemosys_global"
+    prefix: "submodules/osemosys_global"
 
 rule all:
     input:
