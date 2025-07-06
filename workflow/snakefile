@@ -13,3 +13,8 @@ module other_workflow:
     snakefile: "submodules/osemosys_global/workflow/snakefile"
     prefix: "submodules/osemosys_global"
 
+use rule generate_input_data from other_workflow as all with:
+    message:
+        "Generating input CSV data..."
+    input:
+        csv_files = expand('results/{scenario}/data/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
