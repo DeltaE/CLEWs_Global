@@ -4,8 +4,11 @@ min_version("8.0")
 module other_workflow:
     snakefile:
         "../submodules/osemosys_global/workflow/snakefile"
+
+use rule * from other_workflow as other_*
+
+use rule some_task from other_workflow as other_all with:
     workdir:
         "../submodules/osemosys_global/"
 
-use rule * from other_workflow as other_*
 
