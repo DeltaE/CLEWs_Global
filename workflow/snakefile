@@ -54,7 +54,7 @@ def get_otoole_data(otoole_config: str, var: str) -> list[str]:
 
 # constants
 
-OTOOLE_YAML = "resources/otoole.yaml"
+OTOOLE_YAML = "submodules/osemosys_global/resources/otoole.yaml"
 OTOOLE_PARAMS = get_otoole_data(OTOOLE_YAML, "param")
 OTOOLE_RESULTS = get_otoole_data(OTOOLE_YAML, "result")
 
@@ -62,14 +62,14 @@ COUNTRIES = config["geographic_scope"]
 
 # rules
 
-include: "rules/preprocess.smk"
-include: "rules/model.smk"
-include: "rules/retrieve.smk"
+include: "submodules/osemosys_global/workflow/rules/preprocess.smk"
+include: "submodules/osemosys_global/workflow/rules/model.smk"
+include: "submodules/osemosys_global/workflow/rules/retrieve.smk"
 
 # handlers
 
 onsuccess:
-    shell(f"python workflow/scripts/osemosys_global/check_backstop.py {config['scenario']}")
+    shell(f"python submodules/osemosys_global/workflow/scripts/osemosys_global/check_backstop.py {config['scenario']}")
     print('Workflow finished successfully!')
 
     # Will fix this in next update so that preprocessing steps dont always need to be rerun
