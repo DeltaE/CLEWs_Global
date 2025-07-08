@@ -4,7 +4,7 @@ from snakemake.utils import min_version
 
 ROOT_DIR = os.curdir
 os.chdir(f'{ROOT_DIR}/submodules/osemosys_global')
-
+print(os.curdir)
 min_version("8.0")
 
 # configuration
