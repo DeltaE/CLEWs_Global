@@ -2,7 +2,7 @@ import os
 import yaml
 from snakemake.utils import min_version
 
-os.chdir(f'workflow/submodules/osemosys_global')
+workdir: 'workflow/submodules/osemosys_global'
 min_version("8.0")
 
 # configuration
@@ -65,12 +65,16 @@ include: "../submodules/osemosys_global/workflow/rules/postprocess.smk"
 include: "../submodules/osemosys_global/workflow/rules/retrieve.smk"
 include: "../submodules/osemosys_global/workflow/rules/validate.smk"
 
-rule osemosys:
-    message:
-        "Generating input CSV data..."
-    input:
-        csv_files = expand('results/{scenario}/data/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
-    output:
-        csv_files = expand('workflow/submodules/results/{scenario}/data/{csv}.csv',scenario=config['scenario'],csv=OTOOLE_PARAMS),
-    script:
-        '../../scripts/main.py'
+for module_name in ['preprocess', 'model', 'retrieve']:
+    module:
+        name: module_name
+        snakefile: f"workflow/rules/{module_name}.smk"
+        prefix: 'workflow/submodules'
+        params:
+            OTOOLE_YAML = "resources/otoole.yaml",
+            OTOOLE_PARAMS = get_otoole_data(OTOOLE_YAML,"param"),
+            OTOOLE_RESULTS = get_otoole_data(OTOOLE_YAML,"result"),
+            COUNTRIES = config["geographic_scope"]
+
+
+    use rule * from module_name as module_name*
