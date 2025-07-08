@@ -72,8 +72,8 @@ COUNTRIES = config["geographic_scope"]
 for module_name in ["preprocess", "model", "retrieve"]:
     module:
         name: module_name
-        snakefile: f"workflow/submodules/osemosys_global/workflow/rules/{module_name}.smk"
-        prefix: "workflow/submodules/osemosys_global/"
+        snakefile: f"../submodules/osemosys_global/workflow/rules/{module_name}.smk"
+        prefix: "../submodules/osemosys_global/"
 
     use rule * from module_name as module_name*
 
