@@ -3,7 +3,7 @@ import yaml
 from snakemake.utils import min_version
 
 os.chdir(f'workflow/submodules/osemosys_global')
-print(os.curdir)
+print(os.curdir())
 min_version("8.0")
 
 # configuration
