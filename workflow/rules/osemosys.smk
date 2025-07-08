@@ -4,7 +4,7 @@ from snakemake.utils import min_version
 min_version("8.0")
 
 # configuration
-workdir: "../submodules/osemosys_global"
+workdir: "submodules/osemosys_global"
 
 
 # helper functions
