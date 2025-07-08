@@ -9,7 +9,7 @@ workdir: "workflow/submodules/osemosys_global"
 
 module other_workflow:
     # here, plain paths, URLs and the special markers for code hosting providers (see below) are possible.
-    snakefile: "workflow/snakefile"
+    snakefile: "../submodules/osemosys_global/workflow/snakefile"
 
 use rule * from other_workflow as other_*
 
