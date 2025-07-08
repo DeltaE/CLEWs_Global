@@ -71,6 +71,7 @@ include: "../submodules/osemosys_global/workflow/rules/postprocess.smk"
 include: "../submodules/osemosys_global/workflow/rules/retrieve.smk"
 include: "../submodules/osemosys_global/workflow/rules/validate.smk"
 
+print(os.system("pwd"))
 # handlers
 
 onsuccess:
