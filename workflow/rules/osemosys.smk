@@ -53,7 +53,6 @@ def get_otoole_data(otoole_config: str, var: str) -> list[str]:
 
 OTOOLE_YAML = "resources/otoole.yaml"
 OTOOLE_PARAMS = get_otoole_data(OTOOLE_YAML,"param")
-print(OTOOLE_PARAMS)
 OTOOLE_RESULTS = get_otoole_data(OTOOLE_YAML,"result")
 
 COUNTRIES = config["geographic_scope"]
