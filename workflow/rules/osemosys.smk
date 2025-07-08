@@ -8,7 +8,6 @@ min_version("8.0")
 workdir: "workflow/submodules/osemosys_global"
 configfile: 'config/config.yaml'
 
-print(os.system("pwd"))
 # helper functions
 
 def get_otoole_data(otoole_config: str, var: str) -> list[str]:
@@ -71,7 +70,6 @@ include: "../submodules/osemosys_global/workflow/rules/postprocess.smk"
 include: "../submodules/osemosys_global/workflow/rules/retrieve.smk"
 include: "../submodules/osemosys_global/workflow/rules/validate.smk"
 
-print(os.system("pwd"))
 # handlers
 
 onsuccess:
@@ -152,3 +150,5 @@ rule clean_data:
 rule clean_figures:
     shell:
         'rm -rf results/figs/*'
+
+workdir: "../../.."
