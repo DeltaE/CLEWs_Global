@@ -4,7 +4,7 @@ from snakemake.utils import min_version
 min_version("8.0")
 
 # configuration
-workdir: "workflow/submodules/osemosys_global"
+workdir: "../submodules/osemosys_global"
 
 
 # helper functions
@@ -63,11 +63,11 @@ COUNTRIES = config["geographic_scope"]
 
 # rules
 
-include: "../submodules/osemosys_global/workflow/rules/preprocess.smk"
-include: "../submodules/osemosys_global/workflow/rules/model.smk"
-include: "../submodules/osemosys_global/workflow/rules/postprocess.smk"
-include: "../submodules/osemosys_global/workflow/rules/retrieve.smk"
-include: "../submodules/osemosys_global/workflow/rules/validate.smk"
+include: "rules/preprocess.smk"
+include: "rules/model.smk"
+include: "rules/postprocess.smk"
+include: ".rules/retrieve.smk"
+include: "rules/validate.smk"
 
 # handlers
 
