@@ -5,7 +5,7 @@ from snakemake.utils import min_version
 min_version("8.0")
 
 # configuration
-workdir = "workflow/submodules/osemosys_global"
+workdir: "workflow/submodules/osemosys_global"
 configfile: 'config/config.yaml'
 
 print(os.system("pwd"))
