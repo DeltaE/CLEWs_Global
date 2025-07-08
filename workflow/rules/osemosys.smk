@@ -51,3 +51,37 @@ if not os.path.isdir(Path('results','data')):
 wildcard_constraints:
     scenario="[A-Za-z0-9]+"
 
+
+rule generate_input_data:
+    message:
+        "Generating input CSV data..."
+    input:
+        csv_files = expand('results/{scenario}/data/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
+
+rule make_dag:
+    message:
+        'dag created successfully and saved as docs/dag.pdf'
+    shell:
+        'snakemake --dag all | dot -Tpng > docs/_static/dag.png'
+
+# rule dashboard:
+#     message:
+#         'Starting dashboard...'
+#     shell:
+#         'python workflow/scripts/osemosys_global/dashboard/app.py'
+
+# cleaning rules
+
+rule clean:
+    message:
+        'Reseting to defaults...'
+    shell:
+        'rm -rf results/*'
+
+rule clean_data:
+    shell:
+        'rm -rf results/data/*'
+
+rule clean_figures:
+    shell:
+        'rm -rf results/figs/*'
