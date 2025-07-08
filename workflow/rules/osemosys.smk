@@ -73,7 +73,8 @@ for module_name in ["preprocess", "model", "retrieve", "postprocess", "validatio
         prefix: "../submodules/osemosys_global/"
 
     use rule * from module_name as module_name*
-
+print(OTOOLE_PARAMS)
+print(OTOOLE_RESULTS)
 
 # handlers
 
