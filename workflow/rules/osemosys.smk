@@ -94,7 +94,7 @@ if not os.path.isdir(Path('results','data')):
 wildcard_constraints:
     scenario="[A-Za-z0-9]+"
 
-rule all:
+rule allly:
     message:
         'Running workflow...'
     input:
