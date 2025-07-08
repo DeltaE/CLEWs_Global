@@ -51,11 +51,11 @@ def get_otoole_data(otoole_config: str, var: str) -> list[str]:
 
     return [x for x in results if x not in missing]
 
-OTOOLE_YAML = "resources/otoole.yaml"
-OTOOLE_PARAMS = get_otoole_data(OTOOLE_YAML,"param")
-OTOOLE_RESULTS = get_otoole_data(OTOOLE_YAML,"result")
-
-COUNTRIES = config["geographic_scope"]
+# OTOOLE_YAML = "resources/otoole.yaml"
+# OTOOLE_PARAMS = get_otoole_data(OTOOLE_YAML,"param")
+# OTOOLE_RESULTS = get_otoole_data(OTOOLE_YAML,"result")
+#
+# COUNTRIES = config["geographic_scope"]
 
 # rules
 #
@@ -73,7 +73,11 @@ for module_name in ["preprocess", "model", "retrieve", "postprocess", "validatio
         prefix: "../submodules/osemosys_global/"
 
     use rule * from module_name as module_name*
+OTOOLE_YAML = "resources/otoole.yaml"
+OTOOLE_PARAMS = get_otoole_data(OTOOLE_YAML,"param")
+OTOOLE_RESULTS = get_otoole_data(OTOOLE_YAML,"result")
 
+COUNTRIES = config["geographic_scope"]
 
 # handlers
 
