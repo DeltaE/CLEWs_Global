@@ -1,11 +1,13 @@
 import os
 import yaml
 from snakemake.utils import min_version
+from pathlib import Path
+ROOT_DIR = Path(__file__).parent.parent.parent
+os.chdir(f'{ROOT_DIR}/submodules/osemosys_global')
 
 min_version("8.0")
 
 # configuration
-workdir: "workflow/submodules/osemosys_global"
 # helper functions
 
 def get_otoole_data(otoole_config: str, var: str) -> list[str]:
