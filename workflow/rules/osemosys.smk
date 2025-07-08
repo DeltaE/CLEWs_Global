@@ -51,8 +51,9 @@ def get_otoole_data(otoole_config: str, var: str) -> list[str]:
 
     return [x for x in results if x not in missing]
 
-OTOOLE_YAML = "submodules/osemosys_global/resources/otoole.yaml"
+OTOOLE_YAML = "resources/otoole.yaml"
 OTOOLE_PARAMS = get_otoole_data(OTOOLE_YAML,"param")
+print(OTOOLE_PARAMS)
 OTOOLE_RESULTS = get_otoole_data(OTOOLE_YAML,"result")
 
 COUNTRIES = config["geographic_scope"]
