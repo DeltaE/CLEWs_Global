@@ -4,7 +4,6 @@ from snakemake.utils import min_version
 min_version("8.0")
 
 
-configfile: 'config/config.yaml'
 include: "rules/osemosys.smk"
 rule all:
     input:
