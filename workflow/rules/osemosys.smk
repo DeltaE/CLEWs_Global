@@ -8,7 +8,7 @@ workdir: "../submodules/osemosys_global"
 
 
 # helper functions
-
+print(os.system("pwd"))
 def get_otoole_data(otoole_config: str, var: str) -> list[str]:
     """Gets parameter/result files to be created"""
 
