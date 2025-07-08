@@ -151,5 +151,3 @@ rule clean_data:
 rule clean_figures:
     shell:
         'rm -rf results/figs/*'
-workdir: "../../.."
-print(os.system("pwd"))
