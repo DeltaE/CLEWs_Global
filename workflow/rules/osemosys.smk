@@ -58,9 +58,19 @@ OTOOLE_RESULTS = get_otoole_data(OTOOLE_YAML,"result")
 COUNTRIES = config["geographic_scope"]
 
 # rules
-
+#
 include: "../submodules/osemosys_global/workflow/rules/preprocess.smk"
 include: "../submodules/osemosys_global/workflow/rules/model.smk"
 include: "../submodules/osemosys_global/workflow/rules/postprocess.smk"
 include: "../submodules/osemosys_global/workflow/rules/retrieve.smk"
 include: "../submodules/osemosys_global/workflow/rules/validate.smk"
+
+rule osemosys:
+    message:
+        "Generating input CSV data..."
+    input:
+        csv_files = expand('results/{scenario}/data/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
+    output:
+        csv_files = expand('workflow/submodules/results/{scenario}/data/{csv}.csv',scenario=config['scenario'],csv=OTOOLE_PARAMS),
+    shell:
+        'cd ../..'
