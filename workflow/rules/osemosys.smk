@@ -68,6 +68,7 @@ COUNTRIES = config["geographic_scope"]
 module preprocess:
     snakefile: f"../submodules/osemosys_global/workflow/rules/preprocess.smk"
     prefix: "../submodules/osemosys_global/"
+    OTOOLE_PARAMS: OTOOLE_PARAMS
 
 use rule * from preprocess as preprocess_*
 
