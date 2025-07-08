@@ -5,8 +5,7 @@ ROOT_DIR = Path(__file__).parent.parent.parent
 
 
 def main():
-    os.chdir(f'{ROOT_DIR}/submodules/osemosys_global')
-    os.system("snakemake -j 10")
+    os.chdir(f'{ROOT_DIR}')
 
 
 if __name__ == '__main__':

@@ -3,7 +3,6 @@ import yaml
 from snakemake.utils import min_version
 
 os.chdir(f'workflow/submodules/osemosys_global')
-os.system("pwd")
 min_version("8.0")
 
 # configuration
@@ -73,5 +72,5 @@ rule osemosys:
         csv_files = expand('results/{scenario}/data/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
     output:
         csv_files = expand('workflow/submodules/results/{scenario}/data/{csv}.csv',scenario=config['scenario'],csv=OTOOLE_PARAMS),
-    shell:
-        'cd ../..'
+    script:
+        '../../scripts/main.py'
