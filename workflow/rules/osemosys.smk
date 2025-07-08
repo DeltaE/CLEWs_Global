@@ -92,28 +92,28 @@ if not os.path.isdir(Path('results','data')):
 wildcard_constraints:
     scenario="[A-Za-z0-9]+"
 
-rule all:
-    message:
-        'Running workflow...'
-    input:
-        # demand projections
-        expand('results/figs/{demand_figure}.png',demand_figure=["regression", "projection"]),
-
-        # model results
-        expand('results/{scenario}/result_summaries/{result_summary}.csv',
-            scenario=config['scenario'],result_summary=RESULT_SUMMARIES),
-        expand('results/{scenario}/figures/{result_figure}.html',
-            scenario=config['scenario'],result_figure=RESULT_FIGURES),
-
-        # validation results
-        expand("results/{scenario}/validation/{country}/capacity/{dataset}.png",
-            scenario=config['scenario'],country=COUNTRIES,dataset=CAPACITY_VALIDATION),
-        expand("results/{scenario}/validation/{country}/generation/{dataset}.png",
-            scenario=config['scenario'],country=COUNTRIES,dataset=GENERATION_VALIDATION),
-        expand("results/{scenario}/validation/{country}/emissions/{dataset}.png",
-            scenario=config['scenario'],country=COUNTRIES,dataset=EMISSION_VALIDATION),
-        expand("results/{scenario}/validation/{country}/emission_intensity/{dataset}.png",
-            scenario=config['scenario'],country=COUNTRIES,dataset=EMISSION_INTENSITY_VALIDATION),
+# rule all:
+#     message:
+#         'Running workflow...'
+#     input:
+#         # demand projections
+#         expand('results/figs/{demand_figure}.png',demand_figure=["regression", "projection"]),
+#
+#         # model results
+#         expand('results/{scenario}/result_summaries/{result_summary}.csv',
+#             scenario=config['scenario'],result_summary=RESULT_SUMMARIES),
+#         expand('results/{scenario}/figures/{result_figure}.html',
+#             scenario=config['scenario'],result_figure=RESULT_FIGURES),
+#
+#         # validation results
+#         expand("results/{scenario}/validation/{country}/capacity/{dataset}.png",
+#             scenario=config['scenario'],country=COUNTRIES,dataset=CAPACITY_VALIDATION),
+#         expand("results/{scenario}/validation/{country}/generation/{dataset}.png",
+#             scenario=config['scenario'],country=COUNTRIES,dataset=GENERATION_VALIDATION),
+#         expand("results/{scenario}/validation/{country}/emissions/{dataset}.png",
+#             scenario=config['scenario'],country=COUNTRIES,dataset=EMISSION_VALIDATION),
+#         expand("results/{scenario}/validation/{country}/emission_intensity/{dataset}.png",
+#             scenario=config['scenario'],country=COUNTRIES,dataset=EMISSION_INTENSITY_VALIDATION),
 
 
 rule generate_input_data:
