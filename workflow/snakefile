@@ -7,4 +7,4 @@ min_version("8.0")
 include: "rules/osemosys.smk"
 rule all:
     input:
-        csv_files=expand('submodules/osemosys_global/results/{scenario}/data/{csv}.csv',scenario=config['scenario'],csv=OTOOLE_PARAMS)
+        csv_files=expand('workflow/submodules/osemosys_global/results/{scenario}/data/{csv}.csv',scenario=config['scenario'],csv=OTOOLE_PARAMS)
