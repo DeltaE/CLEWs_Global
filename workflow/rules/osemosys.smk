@@ -6,8 +6,6 @@ min_version("8.0")
 
 # configuration
 workdir: "workflow/submodules/osemosys_global"
-print(os.system("pwd"))
-
 
 # helper functions
 
@@ -65,11 +63,20 @@ COUNTRIES = config["geographic_scope"]
 
 # rules
 
-include: "../submodules/osemosys_global/workflow/rules/preprocess.smk"
-include: "../submodules/osemosys_global/workflow/rules/model.smk"
-include: "../submodules/osemosys_global/workflow/rules/postprocess.smk"
-include: "../submodules/osemosys_global/workflow/rules/retrieve.smk"
-include: "../submodules/osemosys_global/workflow/rules/validate.smk"
+# include: "..rules/preprocess.smk"
+# include: "rules/model.smk"
+# include: "rules/postprocess.smk"
+# include: "rules/retrieve.smk"
+# include: "rules/validate.smk"
+
+for module_name in ["preprocess", "model", "retrieve"]:
+    module:
+        name: module_name
+        snakefile: f"workflow/submodules/osemosys_global/workflow/rules/{module_name}.smk"
+        prefix: "workflow/submodules/osemosys_global/"
+
+    use rule * from module_name as module_name*
+
 
 # handlers
 
@@ -94,60 +101,3 @@ if not os.path.isdir(Path('results','data')):
 wildcard_constraints:
     scenario="[A-Za-z0-9]+"
 
-rule allly:
-    message:
-        'Running workflow...'
-    input:
-        # demand projections
-        expand('results/figs/{demand_figure}.png',demand_figure=["regression", "projection"]),
-
-        # model results
-        expand('results/{scenario}/result_summaries/{result_summary}.csv',
-            scenario=config['scenario'],result_summary=RESULT_SUMMARIES),
-        expand('results/{scenario}/figures/{result_figure}.html',
-            scenario=config['scenario'],result_figure=RESULT_FIGURES),
-
-        # validation results
-        expand("results/{scenario}/validation/{country}/capacity/{dataset}.png",
-            scenario=config['scenario'],country=COUNTRIES,dataset=CAPACITY_VALIDATION),
-        expand("results/{scenario}/validation/{country}/generation/{dataset}.png",
-            scenario=config['scenario'],country=COUNTRIES,dataset=GENERATION_VALIDATION),
-        expand("results/{scenario}/validation/{country}/emissions/{dataset}.png",
-            scenario=config['scenario'],country=COUNTRIES,dataset=EMISSION_VALIDATION),
-        expand("results/{scenario}/validation/{country}/emission_intensity/{dataset}.png",
-            scenario=config['scenario'],country=COUNTRIES,dataset=EMISSION_INTENSITY_VALIDATION),
-
-
-rule generate_input_data:
-    message:
-        "Generating input CSV data..."
-    input:
-        csv_files=expand('results/{scenario}/data/{csv}.csv',scenario=config['scenario'],csv=OTOOLE_PARAMS),
-
-rule make_dag:
-    message:
-        'dag created successfully and saved as docs/dag.pdf'
-    shell:
-        'snakemake --dag all | dot -Tpng > docs/_static/dag.png'
-
-# rule dashboard:
-#     message:
-#         'Starting dashboard...'
-#     shell:
-#         'python workflow/scripts/osemosys_global/dashboard/app.py'
-
-# cleaning rules
-
-rule clean:
-    message:
-        'Reseting to defaults...'
-    shell:
-        'rm -rf results/*'
-
-rule clean_data:
-    shell:
-        'rm -rf results/data/*'
-
-rule clean_figures:
-    shell:
-        'rm -rf results/figs/*'
