@@ -52,20 +52,22 @@ def get_otoole_data(otoole_config: str, var: str) -> list[str]:
 
     return [x for x in results if x not in missing]
 
+OTOOLE_YAML = "resources/otoole.yaml"
+OTOOLE_PARAMS = get_otoole_data(OTOOLE_YAML,"param")
+OTOOLE_RESULTS = get_otoole_data(OTOOLE_YAML,"result")
+
+COUNTRIES = config["geographic_scope"]
+
 # rules
 
-# include: "..rules/preprocess.smk"
-# include: "rules/model.smk"
-# include: "rules/postprocess.smk"
-# include: "rules/retrieve.smk"
-# include: "rules/validate.smk"
+include: "../submodules/osemosys_global/workflow/rules/preprocess.smk"
+include: "../submodules/osemosys_global/workflow/rules/model.smk"
+include: "../submodules/osemosys_global/workflow/rules/postprocess.smk"
+include: "../submodules/osemosys_global/workflow/rules/retrieve.smk"
+include: "../submodules/osemosys_global/workflow/rules/validate.smk"
 
 for module_name in ["preprocess", "model", "retrieve", "postprocess", "validation"]:
-    OTOOLE_YAML = "resources/otoole.yaml"
-    OTOOLE_PARAMS = get_otoole_data(OTOOLE_YAML,"param")
-    OTOOLE_RESULTS = get_otoole_data(OTOOLE_YAML,"result")
 
-    COUNTRIES = config["geographic_scope"]
     module:
         name: module_name
         snakefile: f"../submodules/osemosys_global/workflow/rules/{module_name}.smk"
