@@ -6,7 +6,7 @@ min_version("8.0")
 
 # configuration
 workdir: "workflow/submodules/osemosys_global"
-
+configfile: 'config/config.yaml'
 # helper functions
 
 def get_otoole_data(otoole_config: str, var: str) -> list[str]:
