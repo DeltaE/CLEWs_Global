@@ -65,16 +65,29 @@ COUNTRIES = config["geographic_scope"]
 # include: "../submodules/osemosys_global/workflow/rules/retrieve.smk"
 # include: "../submodules/osemosys_global/workflow/rules/validate.smk"
 
-for module_name in ["preprocess", "model", "retrieve", "postprocess", "validation"]:
+module preprocess:
+    snakefile: f"../submodules/osemosys_global/workflow/rules/preprocess.smk"
+    prefix: "../submodules/osemosys_global/"
 
-    module:
-        name: module_name
-        snakefile: f"../submodules/osemosys_global/workflow/rules/{module_name}.smk"
-        prefix: "../submodules/osemosys_global/"
+use rule * from preprocess as preprocess_*
 
-    use rule * from module_name as module_name*
-print(OTOOLE_PARAMS)
-print(OTOOLE_RESULTS)
+module model:
+    snakefile: f"../submodules/osemosys_global/workflow/rules/model.smk"
+    prefix: "../submodules/osemosys_global/"
+
+use rule * from model as model_*
+
+module postprocess:
+    snakefile: f"../submodules/osemosys_global/workflow/rules/postprocess.smk"
+    prefix: "../submodules/osemosys_global/"
+
+use rule * from postprocess as postprocess_*
+
+module retrieve:
+    snakefile: f"../submodules/osemosys_global/workflow/rules/retrieve.smk"
+    prefix: "../submodules/osemosys_global/"
+
+use rule * from retrieve as retrieve_*
 
 # handlers
 
