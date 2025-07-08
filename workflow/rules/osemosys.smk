@@ -120,7 +120,7 @@ rule generate_input_data:
     message:
         "Generating input CSV data..."
     input:
-        csv_files=expand('results/{scenario}/data/{csv}.csv',scenario=config['scenario'],csv=OTOOLE_PARAMS),
+        csv_files=expand('../submodules/osemosys_global/workflow/results/{scenario}/data/{csv}.csv',scenario=config['scenario'],csv=OTOOLE_PARAMS),
 
 rule make_dag:
     message:
