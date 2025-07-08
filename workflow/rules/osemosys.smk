@@ -75,7 +75,7 @@ for module_name in ["preprocess", "model", "retrieve"]:
         snakefile: f"../submodules/osemosys_global/workflow/rules/{module_name}.smk"
         prefix: "../submodules/osemosys_global/"
 
-    use rule * from module_name as *
+    use rule * from module_name
 
 
 # handlers
