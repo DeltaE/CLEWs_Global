@@ -14,7 +14,6 @@ module other_workflow:
 use rule * from other_workflow as other_*
 
 use rule some_task from other_workflow as other_all with:
-
     message:
         "Generating input CSV data..."
     input:
