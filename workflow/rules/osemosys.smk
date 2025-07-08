@@ -58,12 +58,12 @@ OTOOLE_RESULTS = get_otoole_data(OTOOLE_YAML,"result")
 COUNTRIES = config["geographic_scope"]
 
 # rules
-
-include: "../submodules/osemosys_global/workflow/rules/preprocess.smk"
-include: "../submodules/osemosys_global/workflow/rules/model.smk"
-include: "../submodules/osemosys_global/workflow/rules/postprocess.smk"
-include: "../submodules/osemosys_global/workflow/rules/retrieve.smk"
-include: "../submodules/osemosys_global/workflow/rules/validate.smk"
+#
+# include: "../submodules/osemosys_global/workflow/rules/preprocess.smk"
+# include: "../submodules/osemosys_global/workflow/rules/model.smk"
+# include: "../submodules/osemosys_global/workflow/rules/postprocess.smk"
+# include: "../submodules/osemosys_global/workflow/rules/retrieve.smk"
+# include: "../submodules/osemosys_global/workflow/rules/validate.smk"
 
 for module_name in ["preprocess", "model", "retrieve", "postprocess", "validation"]:
 
