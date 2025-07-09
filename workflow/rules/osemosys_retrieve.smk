@@ -40,10 +40,10 @@ rule download_external_files:
         "Downloading external files..."
     params:
         files = get_external_links(),
-        input_data_dir = 'submodules/osemosys_global/resources/data/default'
+        input_data_dir = 'workflow/submodules/osemosys_global/resources/data/default'
     log:
-        log = "submodules/osemosys_global/results/logs/external_files.log"
+        log = "workflow/submodules/osemosys_global/results/logs/external_files.log"
     output:
-        csv_files = expand("submodules/osemosys_global/resources/data/default/{output_file}", output_file=EXTERNAL_FILES),
+        csv_files = expand("workflow/submodules/osemosys_global/resources/data/default/{output_file}", output_file=EXTERNAL_FILES),
     script:
-        "../submodules/osemosys_global/workflow/scripts/osemosys_global/external_files.py"
+        "../workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/external_files.py"
