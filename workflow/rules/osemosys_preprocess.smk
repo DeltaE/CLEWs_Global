@@ -179,9 +179,9 @@ rule powerplant:
         res_targets = config['re_targets'],
         fossil_capacity_targets = config['fossil_capacity_targets'],
         calibration = config['min_generation_factors'],
-        output_data_dir = 'results/data',
-        input_data_dir = 'resources/data/default',
-        powerplant_data_dir = 'results/data/powerplant',
+        output_data_dir = 'workflow/submodules/osemosys_global/results/data',
+        input_data_dir = 'workflow/submodules/osemosys_global/resources/data/default',
+        powerplant_data_dir = 'workflow/submodules/osemosys_global/results/data/powerplant',
     output:
         csv_files = expand('workflow/submodules/osemosys_global/results/data/{output_file}.csv', output_file = power_plant_files)
     log:
