@@ -148,7 +148,7 @@ rule demand_projections:
     log:
         log = 'submodules/osemosys_global/results/logs/demand_projections.log'
     script:
-        "../submodules/osemosys_global/workflow/scripts/osemosys_global/demand/main.py"
+        "workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/demand/main.py"
         
 rule powerplant:
     message:
