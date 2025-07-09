@@ -62,9 +62,9 @@ COUNTRIES = config["geographic_scope"]
 
 # rules
 
-include: "submodules/osemosys_global/workflow/rules/osemosys_preprocess.smk"
-include: "submodules/osemosys_global/workflow/rules/osemosys_model.smk"
-include: "submodules/osemosys_global/workflow/rules/osemosys_retrieve.smk"
+include: "rules/osemosys_preprocess.smk"
+include: "rules/osemosys_model.smk"
+include: "rules/osemosys_retrieve.smk"
 
 # handlers
 
