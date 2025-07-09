@@ -148,7 +148,7 @@ rule demand_projections:
     log:
         log = 'submodules/osemosys_global/results/logs/demand_projections.log'
     script:
-        "workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/demand/main.py"
+        "../submodules/osemosys_global/workflow/scripts/osemosys_global/demand/main.py"
         
 rule powerplant:
     message:
@@ -243,9 +243,9 @@ rule transmission:
         user_defined_capacity_transmission = config['user_defined_capacity_transmission'],
         no_investment_techs = config['no_invest_technologies'],
         transmission_parameters = config['transmission_parameters'],
-        output_data_dir = 'results/data',
-        powerplant_data_dir = 'results/data/powerplant',
-        transmission_data_dir = 'results/data/transmission',
+        output_data_dir = 'submodules/osemosys_global/results/data',
+        powerplant_data_dir = 'submodules/osemosys_global/results/data/powerplant',
+        transmission_data_dir = 'submodules/osemosys_global/results/data/transmission',
     output:
         csv_files = expand('submodules/osemosys_global/results/data/{output_file}.csv', output_file = transmission_files)
     log:
