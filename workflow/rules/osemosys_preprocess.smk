@@ -367,7 +367,7 @@ rule emissions:
         start_year = config['startYear'],
         end_year = config['endYear'],
         region_name = 'GLOBAL',
-        output_data_dir = 'results/data',
+        output_data_dir = 'workflow/submodules/osemosys_global/results/data',
         emission_penalty = config['emission_penalty'],
         emission_limit = config['emission_limit'],
     output: 
