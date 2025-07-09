@@ -1,6 +1,6 @@
 import os
 import yaml
-workdir: "workflow/submodules/osemosys_global"
+workdir: "submodules/osemosys_global"
 
 # model and scenario output files 
 

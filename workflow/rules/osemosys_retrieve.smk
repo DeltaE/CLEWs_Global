@@ -1,5 +1,5 @@
 
-workdir: "workflow/submodules/osemosys_global"
+workdir: "submodules/osemosys_global"
 EXTERNAL_FILES = [
     "PLEXOS_World_2015_Gold_V1.1.xlsx",
     "All_Demand_UTC_2015.csv",

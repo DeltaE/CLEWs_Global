@@ -1,6 +1,6 @@
 import os
 import shutil
-workdir: "workflow/submodules/osemosys_global"
+workdir: "submodules/osemosys_global"
 
 # RULES
 rule geographic_filter:
