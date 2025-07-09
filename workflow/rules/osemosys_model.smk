@@ -18,7 +18,7 @@ rule geographic_filter:
     log:
         log = 'workflow/submodules/osemosys_global/results/{scenario}/logs/geographicFilter.log'
     script:
-        '../workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/geographic_filter.py'
+        '../submodules/osemosys_global/workflow/scripts/osemosys_global/geographic_filter.py'
 
 rule copy_otoole_confg:
     message:

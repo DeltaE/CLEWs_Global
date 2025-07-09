@@ -148,7 +148,7 @@ rule demand_projections:
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/demand_projections.log'
     script:
-        "../workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/demand/main.py"
+        "../submodules/osemosys_global/workflow/scripts/osemosys_global/demand/main.py"
 
 rule powerplant:
     message:
@@ -187,7 +187,7 @@ rule powerplant:
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/powerplant.log'
     script:
-        "../workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/powerplant/main.py"
+        "../submodules/osemosys_global/workflow/scripts/osemosys_global/powerplant/main.py"
 
 rule powerplant_var_costs:
     message:
@@ -203,7 +203,7 @@ rule powerplant_var_costs:
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/powerplant_var_cost.log'
     script:
-        "../workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/powerplant/variable_costs.py"
+        "../submodules/osemosys_global/workflow/scripts/osemosys_global/powerplant/variable_costs.py"
 
 rule fuel_limits:
     message:
@@ -218,7 +218,7 @@ rule fuel_limits:
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/powerplant_fuel_limits.log'
     script:
-        "../workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/powerplant/fuel_limits.py"
+        "../submodules/osemosys_global/workflow/scripts/osemosys_global/powerplant/fuel_limits.py"
 
 rule transmission:
     message:
@@ -251,7 +251,7 @@ rule transmission:
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/transmission.log'
     script:
-        "../workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/transmission/main.py"
+        "../submodules/osemosys_global/workflow/scripts/osemosys_global/transmission/main.py"
         
 rule storage:
     message:
@@ -279,7 +279,7 @@ rule storage:
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/storage.log'
     script:
-        "../workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/storage/main.py"
+        "../submodules/osemosys_global/workflow/scripts/osemosys_global/storage/main.py"
 
 rule timeslice:
     message:
@@ -316,7 +316,7 @@ rule timeslice:
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/timeslice.log'
     script:
-        "../workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/TS_data.py"
+        "../submodules/osemosys_global/workflow/scripts/osemosys_global/TS_data.py"
         
 rule reserves:
     message:
@@ -335,7 +335,7 @@ rule reserves:
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/reserves.log'
     script:
-        "../workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/reserves/main.py"
+        "../submodules/osemosys_global/workflow/scripts/osemosys_global/reserves/main.py"
 
 rule demand_projection_figures:
     message:
@@ -353,7 +353,7 @@ rule demand_projection_figures:
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/demand_projection_plot.log'
     script:
-        "../workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/demand/figures.py"
+        "../submodules/osemosys_global/workflow/scripts/osemosys_global/demand/figures.py"
 
 rule emissions:
     message:
@@ -375,7 +375,7 @@ rule emissions:
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/emissions.log'
     script:
-        "../workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/emissions/main.py"
+        "../submodules/osemosys_global/workflow/scripts/osemosys_global/emissions/main.py"
 
 rule create_missing_csv:
     message:
@@ -388,4 +388,4 @@ rule create_missing_csv:
     output:
         csvs = expand("workflow/submodules/osemosys_global/results/data/{empty}.csv", empty=EMPTY_CSVS)
     script:
-        "../workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/create_missing_csvs.py"
+        "../submodules/osemosys_global/workflow/scripts/osemosys_global/create_missing_csvs.py"
