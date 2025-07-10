@@ -103,6 +103,8 @@ rule geoclews:
         "Run GeoCLEWs..."
     output:
         geoclews = "workflow/submodules/GAEZ_Processing/Data/output/Guyana/summary_stats/GUY_LandCover_byCluster_summary.csv"
+    conda:
+        "GeoCLEWs"
     script:
         scripts/geoclews.py
 
