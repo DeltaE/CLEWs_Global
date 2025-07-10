@@ -45,5 +45,6 @@ rule download_external_files:
         log = "workflow/submodules/osemosys_global/results/logs/external_files.log"
     output:
         csv_files = expand("workflow/submodules/osemosys_global/resources/data/default/{output_file}", output_file=EXTERNAL_FILES),
+    conda: "osemosys-global"
     script:
         "../submodules/osemosys_global/workflow/scripts/osemosys_global/external_files.py"

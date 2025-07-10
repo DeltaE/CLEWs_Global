@@ -124,6 +124,7 @@ EMPTY_CSVS = [x for x in OTOOLE_PARAMS if x not in GENERATED_CSVS]
 
 rule make_data_dir:
     output: directory('workflow/submodules/osemosys_global/results/data')
+    conda: "osemosys-global"
     shell: 'mkdir -p {output}'
 
 rule demand_projections:
@@ -145,6 +146,7 @@ rule demand_projections:
         custom_nodes = config["nodes_to_add"]
     output:
         csv_files = 'workflow/submodules/osemosys_global/results/data/SpecifiedAnnualDemand.csv',
+    conda: "osemosys-global"
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/demand_projections.log'
     script:
@@ -184,6 +186,7 @@ rule powerplant:
         powerplant_data_dir = 'workflow/submodules/osemosys_global/results/data/powerplant',
     output:
         csv_files = expand('workflow/submodules/osemosys_global/results/data/{output_file}.csv', output_file = power_plant_files)
+    conda: "osemosys-global"
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/powerplant.log'
     script:
@@ -200,6 +203,7 @@ rule powerplant_var_costs:
         technologies = "workflow/submodules/osemosys_global/results/data/powerplant/TECHNOLOGY.csv",
     output:
         var_costs = 'workflow/submodules/osemosys_global/results/data/powerplant/VariableCost.csv'
+    conda: "osemosys-global"
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/powerplant_var_cost.log'
     script:
@@ -215,6 +219,7 @@ rule fuel_limits:
         fuel_limit_csv = "workflow/submodules/osemosys_global/resources/data/custom/fuel_limits.csv",
     output:
         activity_upper_limit_csv = 'workflow/submodules/osemosys_global/results/data/TotalTechnologyAnnualActivityUpperLimit.csv'
+    conda: "osemosys-global"
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/powerplant_fuel_limits.log'
     script:
@@ -248,6 +253,7 @@ rule transmission:
         transmission_data_dir = 'workflow/submodules/osemosys_global/results/data/transmission',
     output:
         csv_files = expand('workflow/submodules/osemosys_global/results/data/{output_file}.csv', output_file = transmission_files)
+    conda: "osemosys-global"
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/transmission.log'
     script:
@@ -276,6 +282,7 @@ rule storage:
         transmission_data_dir = 'workflow/submodules/osemosys_global/results/data/transmission',
     output:
         csv_files = expand('workflow/submodules/osemosys_global/results/data/{output_file}.csv', output_file = storage_files)
+    conda: "osemosys-global"
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/storage.log'
     script:
@@ -313,6 +320,7 @@ rule timeslice:
         timeshift = config['timeshift'],
     output:
         csv_files = expand('workflow/submodules/osemosys_global/results/data/{output_file}.csv', output_file=timeslice_files),
+    conda: "osemosys-global"
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/timeslice.log'
     script:
@@ -332,6 +340,7 @@ rule reserves:
         reserve_margin_technologies = config['reserve_margin_technologies']
     output:
         csv_files = expand('workflow/submodules/osemosys_global/results/data/{output_file}.csv', output_file=reserves_files),
+    conda: "osemosys-global"
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/reserves.log'
     script:
@@ -350,6 +359,7 @@ rule demand_projection_figures:
     output:
         regression = 'workflow/submodules/osemosys_global/results/figs/regression.png',
         projection = 'workflow/submodules/osemosys_global/results/figs/projection.png'
+    conda: "osemosys-global"
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/demand_projection_plot.log'
     script:
@@ -372,6 +382,7 @@ rule emissions:
         emission_limit = config['emission_limit'],
     output: 
         csv_files = expand('workflow/submodules/osemosys_global/results/data/{output_file}.csv', output_file = emission_files),
+    conda: "osemosys-global"
     log:
         log = 'workflow/submodules/osemosys_global/results/logs/emissions.log'
     script:
@@ -387,5 +398,6 @@ rule create_missing_csv:
         csvs = expand("workflow/submodules/osemosys_global/results/data/{full}.csv", full=GENERATED_CSVS)
     output:
         csvs = expand("workflow/submodules/osemosys_global/results/data/{empty}.csv", empty=EMPTY_CSVS)
+    conda: "osemosys-global"
     script:
         "../submodules/osemosys_global/workflow/scripts/osemosys_global/create_missing_csvs.py"
