@@ -96,14 +96,14 @@ rule all:
     conda: "osemosys-global"
     input:
         csv_files = expand('workflow/submodules/osemosys_global/results/{scenario}/data/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
-        geoclews = expand("workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/{config['scenario']}/summary_stats/{geographic_scope}_LandCover_byCluster_summary.csv", scenario=config['scenario'], geographic_scope=config['geographic_scope'])
+        geoclews = expand("workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/{scenario}/summary_stats/{geographic_scope}_LandCover_byCluster_summary.csv", scenario=config['scenario'], geographic_scope=config['geographic_scope'])
 
 
 rule geoclews:
     message:
         "Run GeoCLEWs..."
     output:
-        geoclews = expand("workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/{config['scenario']}/summary_stats/{geographic_scope}_LandCover_byCluster_summary.csv", scenario=config['scenario'], geographic_scope=config['geographic_scope'])
+        geoclews = expand("workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/{scenario}/summary_stats/{geographic_scope}_LandCover_byCluster_summary.csv", scenario=config['scenario'], geographic_scope=config['geographic_scope'])
     conda:
         "GeoCLEWs"
     script:
