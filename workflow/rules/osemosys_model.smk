@@ -15,7 +15,6 @@ rule geographic_filter:
         out_dir = "workflow/submodules/osemosys_global/results/{scenario}/data"
     output:
         csv_files = expand('workflow/submodules/osemosys_global/results/{{scenario}}/data/{csv}.csv', csv = OTOOLE_PARAMS),
-    conda: "osemosys-global"
     log:
         log = 'workflow/submodules/osemosys_global/results/{scenario}/logs/geographicFilter.log'
     script:
