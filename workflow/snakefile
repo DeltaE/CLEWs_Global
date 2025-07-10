@@ -77,7 +77,7 @@ onsuccess:
 
 onerror:
     print('An error occurred, please submit issue to '
-        'https://github.com/OSeMOSYS/osemosys_global/issues')
+        'https://github.com/DeltaE/CLEWs_Global/issues')
 
 # file creation check
 
