@@ -1,6 +1,6 @@
 # Scenario Name
 scenario: "Guyana"
-
+country_full_name: "Guyana"
 # Temporal Parameters
 startYear: 2021
 endYear: 2050
