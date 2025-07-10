@@ -263,14 +263,14 @@ crs_proj: "EPSG:24821"
 
 number_of_clusters: {
 
-    'GY_BA': 4,
-    'GY_CU': 4,
-    'GY_DE': 4,
-    'GY_EB': 4,
-    'GY_ES': 4,
-    'GY_MA': 4,
-    'GY_PM': 4,
-    'GY_PT': 4,
-    'GY_UD': 4,
-    'GY_UT': 4,
+    'GY-BA': 4,
+    'GY-CU': 4,
+    'GY-DE': 4,
+    'GY-EB': 4,
+    'GY-ES': 4,
+    'GY-MA': 4,
+    'GY-PM': 4,
+    'GY-PT': 4,
+    'GY-UD': 4,
+    'GY-UT': 4,
 }
