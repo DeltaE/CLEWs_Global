@@ -67,7 +67,7 @@ include: "rules/osemosys_model.smk"
 include: "rules/osemosys_retrieve.smk"
 
 # handlers
-conda: "osemosys-global"
+
 onsuccess:
     shell(f"python workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/check_backstop.py {config['scenario']}")
     print('Workflow finished successfully!')
