@@ -1,6 +1,12 @@
-[submodule "osemosys_global"]
-	path = osemosys_global
-	url = https://github.com/OSeMOSYS/osemosys_global.git
-[submodule "clewsy"]
-	path = clewsy
+[submodule "workflow/submodules/clewsy"]
+	path = workflow/submodules/clewsy
 	url = https://github.com/OSeMOSYS/clewsy.git
+
+[submodule "workflow/submodules/CLEWs_GAEZ"]
+	path = workflow/submodules/CLEWs_GAEZ
+	url = https://github.com/OSeMOSYS/CLEWs_GAEZ.git
+	branch = CLEWs_Global
+
+[submodule "workflow/submodules/osemosys_global"]
+	path = workflow/submodules/osemosys_global
+	url = https://github.com/DeltaE/clews_global-osemosys_global.git

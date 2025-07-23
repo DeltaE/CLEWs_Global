@@ -1,0 +1,141 @@
+import os
+import yaml
+from snakemake.utils import min_version
+min_version("8.0")
+
+# configuration
+
+configfile: 'config/config.yaml'
+
+# helper functions
+
+def get_otoole_data(otoole_config: str, var: str) -> list[str]:
+    """Gets parameter/result files to be created"""
+
+    assert var in ("param", "result", "set")
+
+    with open(otoole_config) as f:
+        otoole = yaml.safe_load(f)
+
+    results = [x for x in otoole if otoole[x]["type"] == var]
+
+    # no result calcualtions
+    missing = [
+        # storage investment not guaranteed
+        "NewStorageCapacity",
+        "TotalDiscountedStorageCost",
+        "SalvageValueStorage",
+        "CapitalInvestmentStorage",
+        "DiscountedCapitalInvestmentStorage",
+        "DiscountedSalvageValueStorage",
+        "DiscountedCostByStorage",
+        # storage levels not guaranteed
+        "StorageLevelSeasonStart",
+        "StorageLevelSeasonFinish",
+        "StorageLevelYearStart",
+        "StorageLevelYearFinish",
+        "StorageLevelDayTypeStart",
+        "StorageLevelDayTypeFinish",
+        "StorageLowerLimit",
+        "StorageUpperLimit",
+        "CapitalInvestmentStorage",
+        "DiscountedCapitalInvestmentStorage",
+        "DiscountedCostByStorage",
+        "DiscountedSalvageValueStorage",
+        "NetChargeWithinDay",
+        "NetChargeWithinYear",
+        # other missing calcs
+        "NumberOfNewTechnologyUnits",
+        "Trade",
+        "ModelPeriodEmissions",
+    ]
+
+    return [x for x in results if x not in missing]
+
+# constants
+
+OTOOLE_YAML = "workflow/submodules/osemosys_global/resources/otoole.yaml"
+OTOOLE_PARAMS = get_otoole_data(OTOOLE_YAML, "param")
+CLEWS_YAML = "config/clews_config/clewsy_otoole_config.yaml"
+CLEWS_RESULTS = get_otoole_data(CLEWS_YAML, "result")
+
+COUNTRIES = config["geographic_scope"]
+
+# rules
+
+include: "rules/osemosys_preprocess.smk"
+include: "rules/osemosys_model.smk"
+include: "rules/osemosys_retrieve.smk"
+
+# handlers
+
+onsuccess:
+    shell(f"python workflow/submodules/osemosys_global/workflow/scripts/osemosys_global/check_backstop.py {config['scenario']}")
+    print('Workflow finished successfully!')
+
+    # Will fix this in next update so that preprocessing steps dont always need to be rerun
+    [f.unlink() for f in Path('results', 'data').glob("*") if f.is_file()]
+
+onerror:
+    print('An error occurred, please submit issue to '
+        'https://github.com/DeltaE/CLEWs_Global/issues')
+
+# file creation check
+
+if not os.path.isdir(Path('workflow/submodules/osemosys_global/results', 'data')):
+    Path('workflow/submodules/osemosys_global/results', 'data').mkdir(parents=True)
+
+# target rules
+
+wildcard_constraints:
+    scenario="[A-Za-z0-9]+"
+
+
+rule all:
+    message:
+        "Generating input CSV data..."
+    conda: "osemosys-global"
+    input:
+        results_file = expand('results/{scenario}/results/{result_file}.csv', scenario=config['scenario'], result_file = CLEWS_RESULTS)
+rule clewsy:
+    message:
+        "Running clewsy to process..."
+    conda: "osemosys-global"
+    input:
+        og_results_files = expand('results/{scenario}/osemosys_global/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
+        geoclews_results_files = expand("results/{scenario}/geoclews/summary_stats/{region}_LandCover_byCluster_summary.csv", scenario=config['scenario'], region=config['number_of_clusters'].keys())
+    output:
+        results_file = expand('results/{scenario}/results/{result_file}.csv', scenario=config['scenario'], result_file = CLEWS_RESULTS)
+    script:
+        "scripts/clewsy.py"
+
+rule copy:
+    message:
+        "Copying output CSV data..."
+    conda: "osemosys-global"
+    output:
+        og_results_files = expand('results/{scenario}/osemosys_global/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
+        geoclews_results_files = expand("results/{scenario}/geoclews/summary_stats/{region}_LandCover_byCluster_summary.csv", scenario=config['scenario'], region=config['number_of_clusters'].keys())
+
+    input:
+        og_csv_files = expand('workflow/submodules/osemosys_global/results/{scenario}/data/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
+        geoclews_csv_files = expand("workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/{scenario}/summary_stats/{region}_LandCover_byCluster_summary.csv", scenario=config['scenario'], region=config['number_of_clusters'].keys())
+    script:
+        "scripts/copy_results.py"
+
+rule geoclews:
+    message:
+        "Run GeoCLEWs..."
+    output:
+        geoclews = expand("workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/{scenario}/summary_stats/{region}_LandCover_byCluster_summary.csv", scenario=config['scenario'], region=config['number_of_clusters'].keys())
+    conda:
+        "GeoCLEWs"
+    script:
+        "scripts/geoclews.py"
+
+rule clean:
+    message:
+        'Reseting to defaults...'
+    shell:
+        'rm -rf results/* && rm -rf workflow/submodules/osemosys_global/results/* && rm -rf workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/* '
+
