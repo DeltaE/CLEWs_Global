@@ -56,7 +56,8 @@ def get_otoole_data(otoole_config: str, var: str) -> list[str]:
 
 OTOOLE_YAML = "workflow/submodules/osemosys_global/resources/otoole.yaml"
 OTOOLE_PARAMS = get_otoole_data(OTOOLE_YAML, "param")
-OTOOLE_RESULTS = get_otoole_data(OTOOLE_YAML, "result")
+CLEWS_YAML = "config/clews_config/clewsy_otoole_config.yaml"
+CLEWS_RESULTS = get_otoole_data(CLEWS_YAML, "result")
 
 COUNTRIES = config["geographic_scope"]
 
@@ -95,8 +96,32 @@ rule all:
         "Generating input CSV data..."
     conda: "osemosys-global"
     input:
-        csv_files = expand('workflow/submodules/osemosys_global/results/{scenario}/data/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
-        geoclews = expand("workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/{scenario}/summary_stats/{region}_LandCover_byCluster_summary.csv", scenario=config['scenario'], region=config['number_of_clusters'].keys())
+        results_file = expand('results/{scenario}/results/{result_file}.csv', scenario=config['scenario'], result_file = CLEWS_RESULTS)
+rule clewsy:
+    message:
+        "Running clewsy to process..."
+    conda: "osemosys-global"
+    input:
+        og_results_files = expand('results/{scenario}/osemosys_global/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
+        geoclews_results_files = expand("results/{scenario}/geoclews/summary_stats/{region}_LandCover_byCluster_summary.csv", scenario=config['scenario'], region=config['number_of_clusters'].keys())
+    output:
+        results_file = expand('results/{scenario}/results/{result_file}.csv', scenario=config['scenario'], result_file = CLEWS_RESULTS)
+    script:
+        "scripts/clewsy.py"
+
+rule copy:
+    message:
+        "Copying output CSV data..."
+    conda: "osemosys-global"
+    output:
+        og_results_files = expand('results/{scenario}/osemosys_global/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
+        geoclews_results_files = expand("results/{scenario}/geoclews/summary_stats/{region}_LandCover_byCluster_summary.csv", scenario=config['scenario'], region=config['number_of_clusters'].keys())
+
+    input:
+        og_csv_files = expand('workflow/submodules/osemosys_global/results/{scenario}/data/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
+        geoclews_csv_files = expand("workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/{scenario}/summary_stats/{region}_LandCover_byCluster_summary.csv", scenario=config['scenario'], region=config['number_of_clusters'].keys())
+    script:
+        "scripts/copy_results.py"
 
 rule geoclews:
     message:
@@ -108,5 +133,9 @@ rule geoclews:
     script:
         "scripts/geoclews.py"
 
-
+rule clean:
+    message:
+        'Reseting to defaults...'
+    shell:
+        'rm -rf results/* && rm -rf workflow/submodules/osemosys_global/results/* && rm -rf workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/output/* '
 
