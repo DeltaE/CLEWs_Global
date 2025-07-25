@@ -6,25 +6,40 @@ import shutil
 from constants import ROOT_DIR
 
 
-def modify_yaml(scenario, region_codes):
-    yaml_file =f"{ROOT_DIR}/config/clews_config/clewsy.yaml"
+def modify_yaml(scenario, region_codes, timeslice, emissions):
+    yaml_file =f"{ROOT_DIR}/config/clews_config/clewsy_template.yaml"
     with open(yaml_file, "r") as f:
         data = yaml.load(f, Loader=yaml.SafeLoader)
     data["Model"] = scenario
-    data["otooleOutputDirectory"] = f"{ROOT_DIR}/results/clewsy"
-    data["DataDirectoryName"] = f"{ROOT_DIR}/geoclews"
-    data["OsemosysGlobalPath"] = f"{ROOT_DIR}/osemosys_global"
-    data["Years"] = pd.read_csv(f"{ROOT_DIR}/results/Guyana/osemosys_global/YEAR.csv").VALUE.to_list()
-    data["LandRegions"] = region_codes.keys()
+    data["otooleOutputDirectory"] = f"{ROOT_DIR}/results/{scenario}/clewsy"
+    data["DataDirectoryName"] = f"{ROOT_DIR}/results/{scenario}/geoclews/summary_stats"
+    data["OperationModes"] = f"{ROOT_DIR}/workflow/submodules/clewsy/optn_mds.txt"
+    data["OsemosysGlobalPath"] = f"{ROOT_DIR}/results/{scenario}/osemosys_global"
+    data["Years"] = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/osemosys_global/YEAR.csv").VALUE.to_list()
+    data["LandRegions"] = list(region_codes.keys())
     data["LandToGridMap"] = region_codes
-    timeslice = pd.read_csv(f"{ROOT_DIR}/results/Guyana/osemosys_global/TIMESLICE.csv").VALUE.to_list()
-    data["TimeSlice"] = {
-        i: j for i in timeslice for j in timeslice
+    data["TimeSlice"] = timeslice
+    for i in data["EndUseFuels"]:
+        fuel_list = data["EndUseFuels"][i]
+        for j in region_codes:
+            fuel_list.append(f"ELC{region_codes[j]}02")
+        data["EndUseFuels"][i] = fuel_list
+    data["TransformationTechnologies"] = []
+    for j in region_codes:
+        data["TransformationTechnologies"].append([
+            'PWRTRNA01', f'ELC{j}01', '1.11', f'ELC{j}02', '1', 'Power transmission Guyana', '1'])
+    data["Emissions"] = {i: ['Carbon dioxide emissions.', '#000000'] for i in emissions}
+
+    crop_list = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/CROP.csv").to_dict()['FUEL'].values()
+    data["CropYieldFactors"] = {
+        i: 1 for i in crop_list
     }
+    print(data)
+    with open(f"{ROOT_DIR}/config/clews_config/clewsy.yaml", "w") as f:
+        yaml.dump(data, f)
 
 
-
-def crop_demand(country_full_name):
+def crop_demand(scenario, country_full_name):
     def set_crop_code(row):
         if row["Item"] in other_crops:
             return "OTH"
@@ -51,6 +66,7 @@ def crop_demand(country_full_name):
     data_classified["Code"] = data_classified.apply(set_crop_code, axis=1)
     data_summarized = data_classified.groupby(['Code']).sum('Value').to_dict()
     demand = data_summarized['Value']
+    pd.DataFrame(data=demand.keys(), columns=["FUEL"]).to_csv(f"{ROOT_DIR}/results/{scenario}/CROP.csv", index=False)
     return demand
 
 
@@ -93,18 +109,18 @@ def demand_projection(demand, scenario, country_full_name, start_year, end_year)
 
 
 ## TODO Make it snakemake processes
-def main(scenario, country_full_name, emissions, start_year, end_year):
+def main(scenario, region_codes, timeslice, country_full_name, emissions, start_year, end_year):
 
     shutil.copy(f"{ROOT_DIR}/results/{scenario}/osemosys_global/FUEL.csv",
                 f"{ROOT_DIR}/results/{scenario}/osemosys_global/COMMODITY.csv")
-
+    demand = crop_demand(scenario, country_full_name)
+    modify_yaml(scenario, region_codes, timeslice, emissions)
     os.system("workflow/submodules/clewsy/src/build/clewsy.py config/clews_config/clewsy.yaml")
     with open(f"{ROOT_DIR}/results/{scenario}/clewsy/EMISSION.csv", "w") as f:
         f.write("VALUE\n")
         for i in emissions:
             f.write(f"{i}\n")
 
-    demand = crop_demand(scenario)
     demand_projection(demand, country_full_name, scenario, start_year, end_year)
 
     data_out_path = f"{ROOT_DIR}/results/{scenario}/clewsy"
@@ -123,6 +139,8 @@ def main(scenario, country_full_name, emissions, start_year, end_year):
 if __name__ == "__main__":
     if "snakemake" in globals():
         project_scenario = snakemake.config['scenario']
+        project_region_codes = snakemake.config['region_codes']
+        project_timeslice = snakemake.config['timeslice']
         project_country = snakemake.config['country_full_name']
         project_emissions = snakemake.config['emissions']
         project_start_year = snakemake.config['startYear']
@@ -130,8 +148,17 @@ if __name__ == "__main__":
 
     else:
         project_scenario = "Guyana"
+        project_region_codes = {
+                  'GUY': 'GUYXX',
+        }
+        project_timeslice = {
+              'S1D1': ['Season 1 intermediate', ''],
+              'S1D2': ['Season 1 peak', ''],
+              'S2D1': ['Season 2 intermediate', ''],
+              'S2D2': ['Season 2 peak', '']
+}
         project_country = 'Guyana'
         project_emissions = 'CO2GUY'
         project_start_year = 2021
         project_end_year = 2050
-    main(project_scenario, project_country, project_emissions, project_start_year, project_end_year)
+    main(project_scenario, project_region_codes, project_timeslice, project_country, project_emissions, project_start_year, project_end_year)

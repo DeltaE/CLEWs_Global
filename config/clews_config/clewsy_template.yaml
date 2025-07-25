@@ -184,11 +184,11 @@ GroundwaterPercentofExcess: 0.051 # Default
 # Model Energy parameters: Fuels, Transformation Tech,...
 ################################################################
 EndUseFuels: {
-  IND: ['COA', 'LPG', 'KER', 'DSL', 'HFO', 'OHC', 'BIO', 'NGS'],
-  RES: ['LPG', 'KER', 'BIO', 'NGS'],
-  COM: ['KER', 'DSL', 'LPG', 'BIO', 'NGS'],
-  AGR: ['DSL'],
-  TRA: ['GSL', 'KER', 'DSL', 'HFO', 'NGS'] # ELC만 바꿈
+  IND: ['COA', 'LPG', 'KER', 'DSL', 'HFO', 'OHC', 'BIO', 'NGS'],# add ELC
+  RES: ['LPG', 'KER', 'BIO', 'NGS'],# add ELC
+  COM: ['KER', 'DSL', 'LPG', 'BIO', 'NGS'],# add ELC
+  AGR: ['DSL'], # add ELC
+  TRA: ['GSL', 'KER', 'DSL', 'HFO', 'NGS']# add ELC
 }
 
 ImportFuels: ['COA', 'CRU', 'LPG', 'GSL', 'KER', 'DSL', 'HFO'] # DEFAULT
