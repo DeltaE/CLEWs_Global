@@ -99,7 +99,6 @@ GeoCLEWs with its adaptable design allows for running with any arbitrary shape a
 Please note: Ensure that all necessary files, such as .shx, .shp, etc., are included. For example, for Kenya, you’ll need to input the following files: KEN_adm0.gpkg, KEN_adm0.prj, KEN_adm0.shp, KEN_adm0.shx, and so on.
 
 - The second required shapefile for clustering can also be obtained from [GADM](https://gadm.org/download_country.html). Depending on the project specifications, users can download either the administrative level 0 or higher. The GAEZ data will be processed based on the admin level selected by the user in this step. Please store the shapefiles in the `workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/user_input/shapefile` folder.
-- 
 Note: Two datasets (two collections of shapefiles including "..._ adm0" and “…admX”) corresponding to the selected country need to be downloaded and placed inside the 'Data/input' folder. If processing at administrative level 0, the same dataset with different naming formats should be used and placed together in the same directory.
 
 ### 6. Run a Model
