@@ -1,0 +1,80 @@
+code,name_english,name_spanish,colour
+BIO,Biomass,Biomasa,forestgreen
+COA,Coal,,saddlebrown
+CRU,Crude oil,,red
+DSL,Diesel,,orange
+ELC,Electricity,Electricidad,grey
+GEO,Geothermal,,purple
+GSL,Gasoline,Gasolina,orange
+HFO,HFO,HFO,brown
+HYD,Hydro,Hidro,blue
+JFL,Jet fuel,Jet fuel,firebrick
+LNG,LNG,LNG,purple
+LPG,LPG,GLP,gold
+PCK,Petroleum coke,,red
+NGS,Natural gas,Gas natural,purple
+OHC,Oil products,Otros hidrocarburos,grey
+PET,Petroleum products,Petroleum products,red
+SOL,Solar,Solar,gold
+URN,Nuclear,Nuclear,grey
+WAS,MSW,Residuos,green
+WAT,Water,Agua,blue
+LND,Land,Suelo,green
+WND,Wind,,violet
+WAV,Wave,,pink
+WON,Wind-Onshore,,lightblue
+FLX,Other Crops,,brown
+MZE,Maize,,green
+OAT,Oat,,beige
+PUL,Pulses,,red
+RAP,Rapeseed Oil,,pink
+SOY,Soy,,lightgreen
+WHT,Wheat,,wheat
+AGR,Agriculture,,brown
+BAR,Barren land,,grey
+FOR,Forests,Bosques,forestgreen
+GRS,Grassland & woodland,Praderas y zonas boscosas,orange
+BLT,Built-up land,Asentamientos,black
+OTH,Other Crops,,lightblue
+PWR,Power sector,,red
+PUB,Public supply,,grey
+EVT,Evapotranspiration,,green
+PRC,Precipitation,,blue
+GRC,Groundwater recharge,,orange
+SUR,Surface water run-off,Agua superficial,red
+IRR,Irrigation,,brown
+REN,Other renewables,Otras fuentes renovables,green
+OIL,Oil,,firebrick
+GAS,Gas,Gas,purple
+MAZ,Maize,,gold
+SOR,Sorghum,Sorgo,purple
+SOY,Soybean,Soya,firebrick
+CDA,Sugarcane,,green
+PAP,Potatoes,Papa,orange
+TLD,Other crops,Otros cultivos,grey
+LPG,LPG,LPG,pink
+KER,Kerosene,Kerosene,violet
+RES,Residential,Residential,blue
+TRA,Transport,Transport,black
+IND,Industry,Industry,grey
+COM,Commercial & services,Commercial & services,green
+ELC_IMP,Electricity imports,,pink
+PWR_WAT,Power sector (consumptive use),,lightblue
+PWR_WITH,Power sector (withdrawal),,darkblue
+ELC_EXP,Electricity exports,,pink
+ELC_NET,Net electricity imports,,pink
+CCG,Combined Cycle Gas,,cadetblue
+OCG,Open Cycle Gas,,black
+SPV,Solar PV,,darkblue
+WOF,Offshore Wind,,seagreen
+BMZ,Biofuels from Maize,,brown
+BCS,Biofuels with CCS,,green
+COG,Cogeneration ,,mediumpurple
+SWI,Switchgrass,,green
+BSW,Biofuels from Switchgrass,,brown
+BCW,Biofuels with CCS,,green
+HI,High Intensity Irrigated,,red
+II,Intermediate Intensity Irrigated,,orange
+HR,High Intensity Rainfed,,yellow
+IR,Intermediate Intensity Rainfed,,blue
+LR,Low Intensity Rainfed,,violet
