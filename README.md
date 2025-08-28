@@ -4,7 +4,23 @@
 ## Installation Steps  
   
 > CLEWs Global is currently tested on **UNIX** systems. If you are using  Windows, we suggest you install [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install)  
-  
+
+
+### 0. (Optional) WSL instruction for Windows users
+Open PowerShell in administrator mode by right-clicking and selecting "Run as administrator", enter the `wsl --install (distro)` command, then restart your machine. For CLEWs Global, Fedora is tested.
+```Powershell  
+wsl --install fedora
+```  
+This command will install Fedora on your machine. Therefore, Fedora will be in your installed program list. Launch FedoraLinux-42.
+In the FedoraLinux-42 console, install GLPK and CBC, the requirements noted in the following instruction.
+```FedoraLinux-42  
+sudo dnf upgrade -y && dnf install -y \
+      python3 python3-pip \
+      glpk-utils \
+      coin-or-Cbc coin-or-Cbc-devel \
+      git wget 
+```  
+
 ### 1. Clone Repository  
   
 Users can clone the the CLEWs Global GitHub repository using HTTPS, SSH, or via the GitHub CLI. See GitHub docs for information on the different cloning methods.  
@@ -106,6 +122,7 @@ Note: Two datasets (two collections of shapefiles including "..._ adm0" and â€œâ
 Run the command `snakemake -j6 --use-conda`. The time to build and solve the model will vary depending on your computer, but in general, this example will finish within minutes.
 
 ```bash
-(base) ~/CLEWs_Global$ conda activate osemosys-global
+(base) ~/CLEWs_Global$ snakemake -j6 --use-conda
 (osemosys-global) ~/CLEWs_Global$
 ```
+
