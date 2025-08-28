@@ -54,6 +54,10 @@ CLEWs Global uses `conda` to manage project dependencies. We recommend installin
 CLEWs Global uses two conda environments, since it was built upon OSeMOSYS Global and GeoCLEWs. OSeMOSYS Global and GeoCLEWs are the submodules, which mange the project dependencies in a file that miniconda can read to create a new environment. Run command below from the root of CLEWs Global directory to create new environments called `osemosys-global` and `GeoCLEWs`.
 
 ```bash
+
+
+(base) $ cd CLEWs_Global  
+
 (base) $ conda env create -f workflow/submodules/osemosys_global/workflow/envs/osemosys-global.yaml  
 
 (base) $ conda env create -f workflow/submodules/CLEWs_GAEZ/environment.yml
