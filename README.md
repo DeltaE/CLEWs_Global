@@ -126,7 +126,7 @@ Note: Two datasets (two collections of shapefiles including "..._ adm0" and â€œâ
 Run the command `snakemake -j6 --use-conda`. The time to build and solve the model will vary depending on your computer, but in general, this example will finish within minutes.
 
 ```bash
-(base) ~/CLEWs_Global$ snakemake -j6 --use-conda
-(osemosys-global) ~/CLEWs_Global$
+(osemosys-global) ~/CLEWs_Global$ snakemake -j6 --use-conda
+
 ```
 
