@@ -15,7 +15,7 @@ This command will install Fedora on your machine. Therefore, Fedora will be in y
 In the FedoraLinux-42 console, install GLPK and CBC, the requirements noted in the following instruction.
 ```FedoraLinux-42  
 sudo dnf upgrade -y && sudo dnf install -y \
-      python3 python3-pip conda\
+      python3 python3-pip \
       glpk-utils \
       coin-or-Cbc coin-or-Cbc-devel \
       git wget 
