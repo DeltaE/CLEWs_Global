@@ -115,7 +115,7 @@ def main(scenario, region_codes, timeslice, country_full_name, emissions, start_
                 f"{ROOT_DIR}/results/{scenario}/osemosys_global/COMMODITY.csv")
     demand = crop_demand(scenario, country_full_name)
     modify_yaml(scenario, region_codes, timeslice, emissions)
-    os.system("workflow/submodules/clewsy/src/build/clewsy.py config/clews_config/clewsy.yaml")
+    os.system("python workflow/submodules/clewsy/src/build/clewsy.py config/clews_config/clewsy.yaml")
     with open(f"{ROOT_DIR}/results/{scenario}/clewsy/EMISSION.csv", "w") as f:
         f.write("VALUE\n")
         for i in emissions:
