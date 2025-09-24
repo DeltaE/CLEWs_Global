@@ -2,6 +2,7 @@ import yaml
 import pandas as pd
 import numpy as np
 import os
+import subprocess
 import shutil
 from constants import ROOT_DIR
 
@@ -115,7 +116,7 @@ def main(scenario, region_codes, timeslice, country_full_name, emissions, start_
                 f"{ROOT_DIR}/results/{scenario}/osemosys_global/COMMODITY.csv")
     demand = crop_demand(scenario, country_full_name)
     modify_yaml(scenario, region_codes, timeslice, emissions)
-    os.system("python workflow/submodules/clewsy/src/build/clewsy.py config/clews_config/clewsy.yaml")
+    subprocess.run(['python', 'workflow/submodules/clewsy/src/build/clewsy.py', 'config/clews_config/clewsy.yaml'], input='Y', text=True)
     with open(f"{ROOT_DIR}/results/{scenario}/clewsy/EMISSION.csv", "w") as f:
         f.write("VALUE\n")
         for i in emissions:
