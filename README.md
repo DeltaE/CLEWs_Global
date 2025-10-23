@@ -58,17 +58,17 @@ CLEWs Global uses two conda environments, since it was built upon OSeMOSYS Globa
 
 (base) $ cd CLEWs_Global  
 
-(base) $ conda env create -f workflow/submodules/osemosys_global/workflow/envs/osemosys-global.yaml  
+(base) $ conda env create -f workflow/envs/clews_global.yaml  
 
 (base) $ conda env create -f workflow/submodules/CLEWs_GAEZ/environment.yml
 
 ```
 
-Once installed, activate the new `osemosys-global` environment. You will now see `(osemosys-global)` at the start of your command prompt.
+Once installed, activate the new `clews-global` environment. You will now see `(clews-global)` at the start of your command prompt.
 
 ```bash
 (base) $ conda activate osemosys-global
-(osemosys-global) $ 
+(clews-global) $ 
 ```
 
 ### 4. Install a Solver 
@@ -80,7 +80,7 @@ CLEWs Global supports `CBC` as its solver. Moreover, CLEWs Global uses `GLPK` to
 [GNU GLPK](https://www.gnu.org/software/glpk/) is an open-source linear programming package that **will be installed with the environment**. CLEWs Global uses it to create a linear programming files. To confirm that `GLPK` installed correctly, run the command `glpsol` in the command line. The following message should display. 
 
 ```bash 
-(osemosys-global) $ glpsol
+(clews-global) $ glpsol
 
 GLPSOL: GLPK LP/MIP Solver, v4.65
 No input problem file specified; try glpsol --help
@@ -93,7 +93,7 @@ No input problem file specified; try glpsol --help
 [`CBC`](https://github.com/coin-or/Cbc) is open-source solver that **will be installed with the environment**. To confirm that `CBC` installed correctly, run the command `cbc` in the command line. The following message should display. Type `quit` to exit `CBC`.
 
 ```bash
-(osemosys-global) $ cbc
+(clews-global) $ cbc
 
 Welcome to the CBC MILP Solver 
 Version: 2.10.3 
@@ -126,7 +126,7 @@ Note: Two datasets (two collections of shapefiles including "..._ adm0" and â€œâ
 Run the command `snakemake -j6 --use-conda`. The time to build and solve the model will vary depending on your computer, but in general, this example will finish within minutes.
 
 ```bash
-(osemosys-global) ~/CLEWs_Global$ snakemake -j6 --use-conda
+(clews-global) ~/CLEWs_Global$ snakemake -j6 --use-conda
 
 ```
 

@@ -94,13 +94,13 @@ wildcard_constraints:
 rule all:
     message:
         "Generating input CSV data..."
-    conda: "osemosys-global"
+    conda: "clews-global"
     input:
         results_file = expand('results/{scenario}/results/{result_file}.csv', scenario=config['scenario'], result_file = CLEWS_RESULTS)
 rule clewsy:
     message:
         "Running clewsy to process..."
-    conda: "osemosys-global"
+    conda: "clews-global"
     input:
         og_results_files = expand('results/{scenario}/osemosys_global/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
         geoclews_results_files = expand("results/{scenario}/geoclews/summary_stats/{region}_LandCover_byCluster_summary.csv", scenario=config['scenario'], region=config['number_of_clusters'].keys())
@@ -112,7 +112,7 @@ rule clewsy:
 rule copy:
     message:
         "Copying output CSV data..."
-    conda: "osemosys-global"
+    conda: "clews-global"
     output:
         og_results_files = expand('results/{scenario}/osemosys_global/{csv}.csv', scenario=config['scenario'], csv=OTOOLE_PARAMS),
         geoclews_results_files = expand("results/{scenario}/geoclews/summary_stats/{region}_LandCover_byCluster_summary.csv", scenario=config['scenario'], region=config['number_of_clusters'].keys())

@@ -40,7 +40,7 @@ def main(data_format, data_infile, data_outfile):
     lines = []
 
     with open(data_infile, 'r') as f1:
-        for line in f1:
+        for line in f1.readlines():
             if not line.startswith(('set MODEper','set MODEx', 'end;')):
                 lines.append(line)
 

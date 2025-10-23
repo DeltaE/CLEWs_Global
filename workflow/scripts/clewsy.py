@@ -71,7 +71,7 @@ def crop_demand(scenario, country_full_name):
     return demand
 
 
-def demand_projection(demand, scenario, country_full_name, start_year, end_year):
+def demand_projection(demand, country_full_name, scenario, start_year, end_year):
     gdp = pd.read_excel(
         f"{ROOT_DIR}/workflow/submodules/osemosys_global/resources/data/default/iamc_db_GDPppp_Countries.xlsx",
         sheet_name="data")
@@ -109,20 +109,85 @@ def demand_projection(demand, scenario, country_full_name, start_year, end_year)
     final_df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/AccumulatedAnnualDemand.csv", index=False)
 
 
+def cost_land_tech(scenario, start_year, end_year):
+    tech_list = list(pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TECHNOLOGY.csv")["VALUE"])
+    high_irrigation_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("HITOT")]
+    high_rainfed_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("HRTOT")]
+    low_irrigation_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("LITOT")]
+    low_rainfed_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("LRTOT")]
+    cluster_name_pr = [i for i in tech_list if i.startswith("LNDAGR")][0][:-2]
+    high_irrigation = 30
+    high_rainfed = 15
+    low_irrigation = 20
+    low_rainfed = 10
+
+    capital_cost_list = [(high_irrigation, high_irrigation_tech), (high_rainfed, high_rainfed_tech),
+                         (low_irrigation, low_irrigation_tech), (low_rainfed, low_rainfed_tech),]
+
+    capital_cost_df = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/CapitalCost.csv")
+    variable_cost_df = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/VariableCost.csv")
+    for land_type, land_tech_list  in capital_cost_list:
+        for land_tech in land_tech_list:
+            interim_df_capital = pd.DataFrame([{"VALUE": land_type, "REGION": "GLOBAL", "TECHNOLOGY": land_tech, "YEAR": i}
+                                       for i in range(start_year, end_year+1)])
+            capital_cost_df = pd.concat([capital_cost_df, interim_df_capital], ignore_index=True)
+    # capital_cost_df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/CapitalCost.csv", index=False)
+
+    opt_list = list(pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/MODE_OF_OPERATION.csv")["VALUE"])
+    for operation in opt_list:
+        interim_df = pd.DataFrame([{"VALUE": -2, "REGION": "GLOBAL", "TECHNOLOGY": 'LNDFORTOT', "YEAR": i,
+                                    'MODE_OF_OPERATION': operation}
+                                   for i in range(start_year, end_year+1)], columns=variable_cost_df.columns)
+        variable_cost_df = pd.concat([variable_cost_df, interim_df], ignore_index=True)
+    # variable_cost_df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/VariableCost.csv", index=False)
+    max_capacity = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalAnnualMaxCapacity.csv")
+    max_capacity_activity = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityUpperLimit.csv")
+    min_capacity_activity = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityLowerLimit.csv")
+    land_cover_info = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/geoclews/summary_stats/GUY_LandCover_byCluster_summary.csv")
+    cluster_lists = land_cover_info["clusters_yield"].tolist()
+    land_cover_info.set_index(["clusters_yield"], inplace=True)
+    for cluster_number  in cluster_lists:
+        cluster_name = cluster_name_pr + str(cluster_number).zfill(2)
+        interim_df_max_capacity = pd.DataFrame([{"VALUE": land_cover_info['sqkm'][cluster_number], "REGION": "GLOBAL",
+                                            "TECHNOLOGY": cluster_name, "YEAR": i}
+                                   for i in range(start_year, end_year+1)])
+        max_capacity = pd.concat([max_capacity, interim_df_max_capacity], ignore_index=True)
+        max_capacity_activity = pd.concat([max_capacity_activity, interim_df_max_capacity], ignore_index=True)
+    for tech in tech_list:
+        interim_df_min_capacity = pd.DataFrame([{"VALUE": 0, "REGION": "GLOBAL",
+                                            "TECHNOLOGY": tech, "YEAR": i}
+                                   for i in range(start_year, end_year+1)])
+        min_capacity_activity = pd.concat([min_capacity_activity, interim_df_min_capacity], ignore_index=True)
+    max_capacity.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalAnnualMaxCapacity.csv", index=False)
+    # max_capacity_activity.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityUpperLimit.csv",
+    #                              index=False)
+    # min_capacity_activity.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityLowerLimit.csv",
+    #                              index=False)
+
+
 ## TODO Make it snakemake processes
 def main(scenario, region_codes, timeslice, country_full_name, emissions, start_year, end_year):
-
-    shutil.copy(f"{ROOT_DIR}/results/{scenario}/osemosys_global/FUEL.csv",
-                f"{ROOT_DIR}/results/{scenario}/osemosys_global/COMMODITY.csv")
+    try:
+        shutil.copy(f"{ROOT_DIR}/results/{scenario}/osemosys_global/FUEL.csv",
+                    f"{ROOT_DIR}/results/{scenario}/osemosys_global/COMMODITY.csv")
+    except shutil.SameFileError:
+        os.remove(f"{ROOT_DIR}/results/{scenario}/osemosys_global/COMMODITY.csv")
+        shutil.copy(f"{ROOT_DIR}/results/{scenario}/osemosys_global/FUEL.csv",
+                    f"{ROOT_DIR}/results/{scenario}/osemosys_global/COMMODITY.csv")
     demand = crop_demand(scenario, country_full_name)
     modify_yaml(scenario, region_codes, timeslice, emissions)
     subprocess.run(['python', 'workflow/submodules/clewsy/src/build/clewsy.py', 'config/clews_config/clewsy.yaml'], input='Y', text=True)
+    try:
+        os.remove(f"{ROOT_DIR}/results/{scenario}/clewsy/COMMODITY.csv")
+    except FileNotFoundError:
+        print("COMMODITY.csv not found")
     with open(f"{ROOT_DIR}/results/{scenario}/clewsy/EMISSION.csv", "w") as f:
         f.write("VALUE\n")
         for i in emissions:
             f.write(f"{i}\n")
 
     demand_projection(demand, country_full_name, scenario, start_year, end_year)
+    cost_land_tech(scenario, start_year, end_year)
 
     data_out_path = f"{ROOT_DIR}/results/{scenario}/clewsy"
     data_text = f"{ROOT_DIR}/results/{scenario}/data"
@@ -159,7 +224,7 @@ if __name__ == "__main__":
               'S2D2': ['Season 2 peak', '']
 }
         project_country = 'Guyana'
-        project_emissions = 'CO2GUY'
+        project_emissions = ['CO2GUY']
         project_start_year = 2021
         project_end_year = 2050
     main(project_scenario, project_region_codes, project_timeslice, project_country, project_emissions, project_start_year, project_end_year)
