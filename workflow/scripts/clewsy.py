@@ -5,6 +5,8 @@ import os
 import subprocess
 import shutil
 from constants import ROOT_DIR
+import collections
+import math
 
 
 def modify_yaml(scenario, region_codes, timeslice, emissions):
@@ -28,7 +30,7 @@ def modify_yaml(scenario, region_codes, timeslice, emissions):
     data["TransformationTechnologies"] = []
     for j in region_codes:
         data["TransformationTechnologies"].append([
-            'PWRTRNA01', f'ELC{j}01', '1.11', f'ELC{j}02', '1', 'Power transmission Guyana', '1'])
+            'PWRTRNA01', f'ELC{j}01', '1.11', f'ELC{j}02', '1', 'Power transmission', '1'])
     data["Emissions"] = {i: ['Carbon dioxide emissions.', '#000000'] for i in emissions}
 
     crop_list = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/CROP.csv").to_dict()['FUEL'].values()
@@ -38,6 +40,8 @@ def modify_yaml(scenario, region_codes, timeslice, emissions):
     print(data)
     with open(f"{ROOT_DIR}/config/clews_config/clewsy.yaml", "w") as f:
         yaml.dump(data, f)
+
+    return data
 
 
 def crop_demand(scenario, country_full_name):
@@ -66,7 +70,10 @@ def crop_demand(scenario, country_full_name):
     data_classified = filtered_data.join(crop_code, how="left")[["Code", "Value"]].reset_index()
     data_classified["Code"] = data_classified.apply(set_crop_code, axis=1)
     data_summarized = data_classified.groupby(['Code']).sum('Value').to_dict()
-    demand = data_summarized['Value']
+    demand = data_summarized['Value'] = {
+    k: v / 1_000_000
+    for k, v in data_summarized['Value'].items()
+}
     pd.DataFrame(data=demand.keys(), columns=["FUEL"]).to_csv(f"{ROOT_DIR}/results/{scenario}/CROP.csv", index=False)
     return demand
 
@@ -99,7 +106,12 @@ def demand_projection(demand, country_full_name, scenario, start_year, end_year)
     gdp_factor = 0
     pop_factor = 1
     for crop in demand:
+        # Crop demand increasing
         demand_data = (1 + result["GDP"] * gdp_factor + result["POP"] * pop_factor) * demand[crop]
+        # flat crop demand:
+        # demand_data = demand[crop]   
+        # demand_data = [demand_data] * len(result.index)
+
         interim_df = pd.DataFrame({'YEAR': result.index, "VALUE": demand_data}, columns=["REGION", "FUEL", "YEAR", "VALUE"])
         interim_df["FUEL"] = f"CRP{crop}"
         final_df = pd.concat([final_df, interim_df], ignore_index=True)
@@ -125,7 +137,7 @@ def cost_land_tech(scenario, start_year, end_year):
                          (low_irrigation, low_irrigation_tech), (low_rainfed, low_rainfed_tech),]
 
     capital_cost_df = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/CapitalCost.csv")
-    variable_cost_df = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/VariableCost.csv")
+
     for land_type, land_tech_list  in capital_cost_list:
         for land_tech in land_tech_list:
             interim_df_capital = pd.DataFrame([{"VALUE": land_type, "REGION": "GLOBAL", "TECHNOLOGY": land_tech, "YEAR": i}
@@ -134,16 +146,11 @@ def cost_land_tech(scenario, start_year, end_year):
     # capital_cost_df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/CapitalCost.csv", index=False)
 
     opt_list = list(pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/MODE_OF_OPERATION.csv")["VALUE"])
-    for operation in opt_list:
-        interim_df = pd.DataFrame([{"VALUE": -2, "REGION": "GLOBAL", "TECHNOLOGY": 'LNDFORTOT', "YEAR": i,
-                                    'MODE_OF_OPERATION': operation}
-                                   for i in range(start_year, end_year+1)], columns=variable_cost_df.columns)
-        variable_cost_df = pd.concat([variable_cost_df, interim_df], ignore_index=True)
-    # variable_cost_df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/VariableCost.csv", index=False)
+    
     max_capacity = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalAnnualMaxCapacity.csv")
     max_capacity_activity = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityUpperLimit.csv")
     min_capacity_activity = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityLowerLimit.csv")
-    land_cover_info = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/geoclews/summary_stats/GUY_LandCover_byCluster_summary.csv")
+    land_cover_info = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/geoclews/summary_stats/KEN_LandCover_byCluster_summary.csv")
     cluster_lists = land_cover_info["clusters_yield"].tolist()
     land_cover_info.set_index(["clusters_yield"], inplace=True)
     for cluster_number  in cluster_lists:
@@ -175,7 +182,7 @@ def main(scenario, region_codes, timeslice, country_full_name, emissions, start_
         shutil.copy(f"{ROOT_DIR}/results/{scenario}/osemosys_global/FUEL.csv",
                     f"{ROOT_DIR}/results/{scenario}/osemosys_global/COMMODITY.csv")
     demand = crop_demand(scenario, country_full_name)
-    modify_yaml(scenario, region_codes, timeslice, emissions)
+    yaml_data = modify_yaml(scenario, region_codes, timeslice, emissions)
     subprocess.run(['python', 'workflow/submodules/clewsy/src/build/clewsy.py', 'config/clews_config/clewsy.yaml'], input='Y', text=True)
     try:
         os.remove(f"{ROOT_DIR}/results/{scenario}/clewsy/COMMODITY.csv")
@@ -185,7 +192,140 @@ def main(scenario, region_codes, timeslice, country_full_name, emissions, start_
         f.write("VALUE\n")
         for i in emissions:
             f.write(f"{i}\n")
+    # new parameters here
+    land_mapping = {
+"LCType1": "Cropland",
+"LCType2": "Forest land",
+"LCType3": "Grassland & woodland",
+"LCType4": "Barren and sparsely vegetated land",
+"LCType5": "Cropland",
+"LCType6": "Forest land",
+"LCType7": "Grassland & woodland",
+"LCType8": "Barren and sparsely vegetated land",
+"LCType9": "Built-up land",
+"LCType10": "Other agricultural land",
+"LCType11": "Water bodies"
+}
+    # Retrieve LandCover by Cluster summary csv from GeoCLEWs results
+    files = [
+    f for f in os.listdir(yaml_data["DataDirectoryName"])
+    if f.endswith("_LandCover_byCluster_summary.csv")
+]
+    file_path = os.path.join(yaml_data["DataDirectoryName"], files[0])
+    df_lndarea = pd.read_csv(file_path) # same as land cover info in another function
 
+    # rename land types and get totals
+    df_lndarea["clusters_yield"] = df_lndarea["clusters_yield"].astype(int)
+    df_lndarea.columns = df_lndarea.columns.str.strip()
+    df_lndarea = df_lndarea.rename(columns=land_mapping)
+    cluster_category_totals = df_lndarea.groupby(axis=1, level=0).sum(numeric_only=True)
+
+    TechUpperLim = []
+    LandRegion = next(iter(region_codes))
+### TotalTechnologyAnnualActivityUpperLimit
+    for cluster_num  in range(1, len(cluster_category_totals)+1):
+        value = (df_lndarea.loc[
+            df_lndarea["clusters_yield"] == cluster_num, "sqkm"
+        ].values[0])/1000
+        for year in yaml_data['Years']:
+            TechUpperLim.append([
+                next(iter(yaml_data['Regions'])),
+                "LNDAGR" + LandRegion + "C" + str(cluster_num).zfill(2),
+                year,
+                value #math.ceil(value)
+            ])
+
+    TechUpperLim = pd.DataFrame(
+        TechUpperLim,
+        columns=['REGION','TECHNOLOGY','YEAR','VALUE']
+    )
+    TechUpperLim_df = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityUpperLimit.csv")
+    TechUpperLim_df = pd.concat([TechUpperLim_df, TechUpperLim], ignore_index=True)
+    TechUpperLim_df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityUpperLimit.csv", index=False)
+### TechnologyActivityByModeLowerLimit
+    LandRegion = 'KEN'
+    TechModeLowerLim = []
+    
+    with open(yaml_data['OperationModes'], 'r') as f:
+        ModeList = [m.strip().strip("'") for m in f.read().split(",") if m.strip()]
+    category_columns = [
+        col for col in cluster_category_totals.columns
+        if col in ModeList
+    ]
+
+    for cluster_num in range(1, len(cluster_category_totals)+1):
+        for col in category_columns:
+            mode_idx = ModeList.index(col) + 1
+            if col in ['Cropland', 'Forest land', 'Other agricultural land']:
+                continue
+            else:
+                value = (cluster_category_totals.loc[cluster_num - 1, col])/1000
+                for year in yaml_data['Years']:
+                    year = int(year)
+                    TechModeLowerLim.append([
+                        next(iter(yaml_data['Regions'])),
+                        "LNDAGR" + LandRegion + "C" + str(cluster_num).zfill(2),
+                        mode_idx,
+                        year,
+                        value#.round()
+                    ])
+
+    TechModeLowerLim = pd.DataFrame(
+        TechModeLowerLim,
+        columns=['REGION','TECHNOLOGY','MODE_OF_OPERATION','YEAR','VALUE'])
+
+    #TechModeLowerLim = TechModeLowerLim[TechModeLowerLim["VALUE"] != 0]
+
+    TechModeLowerLim.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TechnologyActivityByModeLowerLimit.csv", index=False)
+    # TechnologyActivityByModeUpperLimit create empty dataframe
+    TechModeUpperLim = pd.DataFrame(
+        columns=['REGION','TECHNOLOGY','MODE_OF_OPERATION','YEAR','VALUE'])
+    TechModeUpperLim.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TechnologyActivityByModeUpperLimit.csv", index=False)
+    # TechnologyActivityIncreaseByModeLimit create empty dataframe
+    TechnologyActivityIncreaseByModeLimit = pd.DataFrame(
+        columns=['REGION','TECHNOLOGY','MODE_OF_OPERATION','YEAR','VALUE'])
+    TechnologyActivityIncreaseByModeLimit.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TechnologyActivityIncreaseByModeLimit.csv", index=False)
+     # TechnologyActivityDecreaseByModeLimit create empty dataframe
+    TechnologyActivityDecreaseByModeLimit = pd.DataFrame(
+        columns=['REGION','TECHNOLOGY','MODE_OF_OPERATION','YEAR','VALUE'])
+    TechnologyActivityDecreaseByModeLimit.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TechnologyActivityDecreaseByModeLimit.csv", index=False)
+    # Negative variable cost for forest:
+    variable_cost_df = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/VariableCost.csv")
+    VarCost = []
+    for cluster_num in range(1, len(cluster_category_totals)+1):
+        for year in yaml_data['Years']:
+            value = -10
+            mode = ModeList.index('Forest land')+1
+            VarCost.append([
+                    next(iter(yaml_data['Regions'])),
+                    "LNDAGR" + LandRegion + "C" + str(cluster_num).zfill(2),
+                    mode,
+                    year,
+                    value
+                ])
+
+    VarCost = pd.DataFrame(
+        VarCost,
+        columns=['REGION', "TECHNOLOGY", "MODE_OF_OPERATION", "YEAR", "VALUE"])
+    variable_cost_df = pd.concat([variable_cost_df, VarCost], ignore_index=True)
+    variable_cost_df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/VariableCost.csv", index=False)
+    # OperationalLife for agricultural land
+    operational_life_df = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/OperationalLife.csv")
+    cropcombo = [mode for mode in ModeList if mode not in land_mapping.values()]
+    OL = []
+    for crop in cropcombo:
+        value = 15
+        OL.append([
+            next(iter(yaml_data['Regions'])),
+            'LND' + crop + 'TOT',
+            value
+        ])
+
+    OL = pd.DataFrame(
+        OL,
+        columns=['REGION', "TECHNOLOGY", "VALUE"])
+    operational_life_df = pd.concat([operational_life_df, OL], ignore_index=True)
+    operational_life_df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/OperationalLife.csv", index=False)
     demand_projection(demand, country_full_name, scenario, start_year, end_year)
     cost_land_tech(scenario, start_year, end_year)
 
@@ -213,9 +353,9 @@ if __name__ == "__main__":
         project_end_year = snakemake.config['endYear']
 
     else:
-        project_scenario = "Guyana"
+        project_scenario = "Kenya"
         project_region_codes = {
-                  'GUY': 'GUYXX',
+                  'KEN': 'KENXX',
         }
         project_timeslice = {
               'S1D1': ['Season 1 intermediate', ''],
@@ -223,8 +363,8 @@ if __name__ == "__main__":
               'S2D1': ['Season 2 intermediate', ''],
               'S2D2': ['Season 2 peak', '']
 }
-        project_country = 'Guyana'
-        project_emissions = ['CO2GUY']
-        project_start_year = 2021
-        project_end_year = 2050
+        project_country = 'Kenya'
+        project_emissions = ['CO2KEN']
+        project_start_year = 2020
+        project_end_year = 2035
     main(project_scenario, project_region_codes, project_timeslice, project_country, project_emissions, project_start_year, project_end_year)

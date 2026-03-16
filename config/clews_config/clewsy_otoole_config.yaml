@@ -510,3 +510,27 @@ UseByTechnology:
     dtype: float
     default: 0
     calculated: False
+TechnologyActivityByModeLowerLimit:
+    short_name: TechActivityByModeLowerLim
+    indices: [REGION, TECHNOLOGY, MODE_OF_OPERATION, YEAR]
+    type: param
+    dtype: float
+    default: 0
+TechnologyActivityByModeUpperLimit:
+    short_name: TechActivityByModeUpperLim
+    indices: [REGION, TECHNOLOGY, MODE_OF_OPERATION, YEAR]
+    type: param
+    dtype: float
+    default: 0
+TechnologyActivityIncreaseByModeLimit:
+    short_name: TechActivityIncrease
+    indices: [REGION, TECHNOLOGY, MODE_OF_OPERATION, YEAR]
+    type: param
+    dtype: float
+    default: 0
+TechnologyActivityDecreaseByModeLimit:
+    short_name: TechActivityDecrease
+    indices: [REGION, TECHNOLOGY, MODE_OF_OPERATION, YEAR]
+    type: param
+    dtype: float
+    default: 0

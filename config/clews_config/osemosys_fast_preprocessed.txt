@@ -166,6 +166,12 @@ param AnnualEmissionLimit{r in REGION, e in EMISSION, y in YEAR};
 param ModelPeriodExogenousEmission{r in REGION, e in EMISSION};
 param ModelPeriodEmissionLimit{r in REGION, e in EMISSION};
 #
+#########						Land use							############
+#
+param TechnologyActivityByModeUpperLimit{r in REGION, t in TECHNOLOGY, m in MODE_OF_OPERATION, y in YEAR};
+param TechnologyActivityByModeLowerLimit{r in REGION, t in TECHNOLOGY, m in MODE_OF_OPERATION, y in YEAR};
+param TechnologyActivityIncreaseByModeLimit{r in REGION, t in TECHNOLOGY, m in MODE_OF_OPERATION, y in YEAR};
+param TechnologyActivityDecreaseByModeLimit{r in REGION, t in TECHNOLOGY, m in MODE_OF_OPERATION, y in YEAR};
 ##############
 ##
 ########################################################################
@@ -263,6 +269,8 @@ var CapitalInvestmentStorage{r in REGION, s in STORAGE, y in YEAR} >=0;
 var DiscountedCapitalInvestmentStorage{r in REGION, s in STORAGE, y in YEAR} >=0;
 var DiscountedSalvageValueStorage{r in REGION, s in STORAGE, y in YEAR} >=0;
 var TotalDiscountedStorageCost{r in REGION, s in STORAGE, y in YEAR} >=0;
+
+var TotalAnnualTechnologyActivityByMode{r in REGION, t in TECHNOLOGY, m in MODEperTECHNOLOGY[t], y in YEAR}>=0;
 #
 #########                    Capacity Variables                         #############
 #
@@ -408,7 +416,7 @@ s.t. EBb4_EnergyBalanceEachYear4{r in REGION, f in FUEL, y in YEAR}: sum{(m,t) i
 #
 #s.t. Acc1_FuelProductionByTechnology{r in REGION, l in TIMESLICE, t in TECHNOLOGY, f in FUEL, y in YEAR}: sum{m in MODEperTECHNOLOGY[t]} RateOfActivity[r,l,t,m,y]*OutputActivityRatio[r,t,f,m,y] * YearSplit[l,y] = ProductionByTechnology[r,l,t,f,y];
 #s.t. Acc2_FuelUseByTechnology{r in REGION, l in TIMESLICE, t in TECHNOLOGY, f in FUEL, y in YEAR}: sum{m in MODEperTECHNOLOGY[t]} RateOfActivity[r,l,t,m,y]*InputActivityRatio[r,t,f,m,y] * YearSplit[l,y] = UseByTechnology[r,l,t,f,y];
-#s.t. Acc3_AverageAnnualRateOfActivity{r in REGION, t in TECHNOLOGY, m in MODEperTECHNOLOGY[t], y in YEAR}: sum{l in TIMESLICE} RateOfActivity[r,l,t,m,y]*YearSplit[l,y] = TotalAnnualTechnologyActivityByMode[r,t,m,y];
+s.t. Acc3_AverageAnnualRateOfActivity{r in REGION, t in TECHNOLOGY, m in MODEperTECHNOLOGY[t], y in YEAR}: sum{l in TIMESLICE} RateOfActivity[r,l,t,m,y]*YearSplit[l,y] = TotalAnnualTechnologyActivityByMode[r,t,m,y];
 #s.t. Acc4_ModelPeriodCostByRegion{r in REGION}:sum{t in TECHNOLOGY, y in YEAR}(((((sum{yy in YEAR: y-yy < OperationalLife[r,t] && y-yy>=0} NewCapacity[r,t,yy])+ ResidualCapacity[r,t,y])*FixedCost[r,t,y] + sum{m in MODEperTECHNOLOGY[t], l in TIMESLICE} RateOfActivity[r,l,t,m,y]*YearSplit[l,y]*VariableCost[r,t,m,y])/DiscountFactorMid[r,y]+CapitalCost[r,t,y] * NewCapacity[r,t,y]/DiscountFactor[r,y]+DiscountedTechnologyEmissionsPenalty[r,t,y]-DiscountedSalvageValue[r,t,y]) + sum{s in STORAGE} (CapitalCostStorage[r,s,y] * NewStorageCapacity[r,s,y]/DiscountFactorStorage[r,s,y]-CapitalCostStorage[r,s,y] * NewStorageCapacity[r,s,y]/DiscountFactorStorage[r,s,y])) = ModelPeriodCostByRegion[r];
 
 #
@@ -491,6 +499,9 @@ s.t. SV2_SalvageValueAtEndOfPeriod2{r in REGION, t in TECHNOLOGY, y in YEAR: (y 
 s.t. SV3_SalvageValueAtEndOfPeriod3{r in REGION, t in TECHNOLOGY, y in YEAR: (y + OperationalLife[r,t]-1) <= (max{yy in YEAR} max(yy))}: SalvageValue[r,t,y] = 0;
 s.t. SV4_SalvageValueDiscountedToStartYear{r in REGION, t in TECHNOLOGY, y in YEAR}: DiscountedSalvageValue[r,t,y] = SalvageValue[r,t,y]/((1+DiscountRate[r])^(1+max{yy in YEAR} max(yy)-min{yy in YEAR} min(yy)));
 #
+########                       Mode_specific                      ###########
+
+s.t. LU1_TechnologyActivityByModeLL{r in REGION, t in TECHNOLOGY, m in MODEperTECHNOLOGY[t], y in YEAR}: TotalAnnualTechnologyActivityByMode[r,t,m,y] >= TechnologyActivityByModeLowerLimit[r,t,m,y];
 #########                Operating Costs                          #############
 #
 #s.t. OC1_OperatingCostsVariable{r in REGION, t in TECHNOLOGY, y in YEAR}: sum{m in MODEperTECHNOLOGY[t], l in TIMESLICE} RateOfActivity[r,l,t,m,y]*YearSplit[l,y]*VariableCost[r,t,m,y] = AnnualVariableOperatingCost[r,t,y];
@@ -568,7 +579,16 @@ s.t. E4_EmissionsPenaltyByTechnology{r in REGION, t in TECHNOLOGY, y in YEAR}: s
 #
 ###########################################################################################
 #
+#
+#########				Land use constraints					###############
+#
+s.t. LU1_TechnologyActivityByModeUL{r in REGION, t in TECHNOLOGY, m in MODEperTECHNOLOGY[t], y in YEAR: TechnologyActivityByModeUpperLimit[r,t,m,y] <> 0}: TotalAnnualTechnologyActivityByMode[r,t,m,y] <= TechnologyActivityByModeUpperLimit[r,t,m,y];
+s.t. LU2_TechnologyActivityByModeLL{r in REGION, t in TECHNOLOGY, m in MODEperTECHNOLOGY[t], y in YEAR}: TotalAnnualTechnologyActivityByMode[r,t,m,y] >= TechnologyActivityByModeLowerLimit[r,t,m,y];
 
+s.t. LU3_TechnologyActivityIncreaseByMode{r in REGION, t in TECHNOLOGY, m in MODEperTECHNOLOGY[t], y in YEAR, yy in YEAR: y-yy == 1 && TechnologyActivityIncreaseByModeLimit[r,t,m,yy] <> 0}: TotalAnnualTechnologyActivityByMode[r,t,m,y] <= (1 + TechnologyActivityIncreaseByModeLimit[r,t,m,yy]) * TotalAnnualTechnologyActivityByMode[r,t,m,yy];
+
+s.t. LU4_TechnologyActivityDecreaseByMode{r in REGION, t in TECHNOLOGY, m in MODEperTECHNOLOGY[t], y in YEAR, yy in YEAR: y-yy == 1 && TechnologyActivityDecreaseByModeLimit[r,t,m,yy] <> 0}: TotalAnnualTechnologyActivityByMode[r,t,m,y] >= (1 - TechnologyActivityDecreaseByModeLimit[r,t,m,yy]) * TotalAnnualTechnologyActivityByMode[r,t,m,yy];
+#
 solve;
 #
 #########################################################################################################
@@ -1058,15 +1078,15 @@ table SalvageValueStorageResults
     r~REGION, s~STORAGE, y~YEAR,
     SalvageValueStorage[r, s, y]~VALUE;
 
-table TotalAnnualTechnologyActivityByMode
-    {r in REGION, t in TECHNOLOGY, m in MODEperTECHNOLOGY[t], y in YEAR:
-        sum{l in TIMESLICE}
-            RateOfActivity[r,l,t,m,y] > 0}
-    OUT "CSV"
-    ResultsPath & "/TotalAnnualTechnologyActivityByMode.csv":
-    r~REGION, t~TECHNOLOGY, m~MODE_OF_OPERATION, y~YEAR,
-    sum{l in TIMESLICE}
-        RateOfActivity[r,l,t,m,y] * YearSplit[l,y]~VALUE;
+#table TotalAnnualTechnologyActivityByMode
+#    {r in REGION, t in TECHNOLOGY, m in MODEperTECHNOLOGY[t], y in YEAR:
+#        sum{l in TIMESLICE}
+#            RateOfActivity[r,l,t,m,y] > 0}
+#    OUT "CSV"
+#    ResultsPath & "/TotalAnnualTechnologyActivityByMode.csv":
+#    r~REGION, t~TECHNOLOGY, m~MODE_OF_OPERATION, y~YEAR,
+#    sum{l in TIMESLICE}
+#        RateOfActivity[r,l,t,m,y] * YearSplit[l,y]~VALUE;
 
 table TotalCapacityAnnualResults
     {r in REGION, t in TECHNOLOGY, y in YEAR:
