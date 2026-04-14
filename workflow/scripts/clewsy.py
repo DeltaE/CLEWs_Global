@@ -34,10 +34,13 @@ def modify_yaml(scenario, region_codes, timeslice, emissions):
     data["Emissions"] = {i: ['Carbon dioxide emissions.', '#000000'] for i in emissions}
 
     crop_list = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/CROP.csv").to_dict()['FUEL'].values()
-    data["CropYieldFactors"] = {
-        i: 1 for i in crop_list
-    }
-    print(data)
+    
+    if "CropYieldFactors" not in data or not data["CropYieldFactors"]:
+    # If 'CropYieldFactors' is missing or empty, assign 1 to each crop in crop_list
+        data["CropYieldFactors"] = {i: 1 for i in crop_list}
+    else:
+        data["CropYieldFactors"] = data["CropYieldFactors"]
+    print(data["CropYieldFactors"])
     with open(f"{ROOT_DIR}/config/clews_config/clewsy.yaml", "w") as f:
         yaml.dump(data, f)
 
@@ -125,6 +128,8 @@ def cost_land_tech(scenario, start_year, end_year):
     tech_list = list(pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TECHNOLOGY.csv")["VALUE"])
     high_irrigation_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("HITOT")]
     high_rainfed_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("HRTOT")]
+    #intermediate_irrigation_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("IITOT")]
+    #intermediate_rainfed_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("IRTOT")]
     low_irrigation_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("LITOT")]
     low_rainfed_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("LRTOT")]
     cluster_name_pr = [i for i in tech_list if i.startswith("LNDAGR")][0][:-2]
@@ -132,9 +137,9 @@ def cost_land_tech(scenario, start_year, end_year):
     high_rainfed = 15
     low_irrigation = 20
     low_rainfed = 10
-
+    
     capital_cost_list = [(high_irrigation, high_irrigation_tech), (high_rainfed, high_rainfed_tech),
-                         (low_irrigation, low_irrigation_tech), (low_rainfed, low_rainfed_tech),]
+                        (low_rainfed, low_rainfed_tech), (low_irrigation, low_irrigation_tech),]
 
     capital_cost_df = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/CapitalCost.csv")
 
@@ -143,33 +148,33 @@ def cost_land_tech(scenario, start_year, end_year):
             interim_df_capital = pd.DataFrame([{"VALUE": land_type, "REGION": "GLOBAL", "TECHNOLOGY": land_tech, "YEAR": i}
                                        for i in range(start_year, end_year+1)])
             capital_cost_df = pd.concat([capital_cost_df, interim_df_capital], ignore_index=True)
-    # capital_cost_df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/CapitalCost.csv", index=False)
+    capital_cost_df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/CapitalCost.csv", index=False)
 
     opt_list = list(pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/MODE_OF_OPERATION.csv")["VALUE"])
     
     max_capacity = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalAnnualMaxCapacity.csv")
     max_capacity_activity = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityUpperLimit.csv")
     min_capacity_activity = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityLowerLimit.csv")
-    land_cover_info = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/geoclews/summary_stats/KEN_LandCover_byCluster_summary.csv")
+    land_cover_info = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/geoclews/summary_stats/PHL_LandCover_byCluster_summary.csv")
     cluster_lists = land_cover_info["clusters_yield"].tolist()
     land_cover_info.set_index(["clusters_yield"], inplace=True)
-    for cluster_number  in cluster_lists:
-        cluster_name = cluster_name_pr + str(cluster_number).zfill(2)
-        interim_df_max_capacity = pd.DataFrame([{"VALUE": land_cover_info['sqkm'][cluster_number], "REGION": "GLOBAL",
-                                            "TECHNOLOGY": cluster_name, "YEAR": i}
-                                   for i in range(start_year, end_year+1)])
-        max_capacity = pd.concat([max_capacity, interim_df_max_capacity], ignore_index=True)
-        max_capacity_activity = pd.concat([max_capacity_activity, interim_df_max_capacity], ignore_index=True)
-    for tech in tech_list:
-        interim_df_min_capacity = pd.DataFrame([{"VALUE": 0, "REGION": "GLOBAL",
-                                            "TECHNOLOGY": tech, "YEAR": i}
-                                   for i in range(start_year, end_year+1)])
-        min_capacity_activity = pd.concat([min_capacity_activity, interim_df_min_capacity], ignore_index=True)
-    max_capacity.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalAnnualMaxCapacity.csv", index=False)
-    # max_capacity_activity.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityUpperLimit.csv",
-    #                              index=False)
+    # for cluster_number  in cluster_lists:
+    #     cluster_name = cluster_name_pr + str(cluster_number).zfill(2)
+    #     interim_df_max_capacity = pd.DataFrame([{"VALUE": land_cover_info['sqkm'][cluster_number], "REGION": "GLOBAL",
+    #                                         "TECHNOLOGY": cluster_name, "YEAR": i}
+    #                                for i in range(start_year, end_year+1)])
+    #     max_capacity = pd.concat([max_capacity, interim_df_max_capacity], ignore_index=True)
+    #     max_capacity_activity = pd.concat([max_capacity_activity, interim_df_max_capacity], ignore_index=True)
+    # for tech in tech_list:
+    #     interim_df_min_capacity = pd.DataFrame([{"VALUE": 0, "REGION": "GLOBAL",
+    #                                         "TECHNOLOGY": tech, "YEAR": i}
+    #                                for i in range(start_year, end_year+1)])
+    #     min_capacity_activity = pd.concat([min_capacity_activity, interim_df_min_capacity], ignore_index=True)
+    # max_capacity.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalAnnualMaxCapacity.csv", index=False)
+    # # max_capacity_activity.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityUpperLimit.csv",
+    # #                              index=False)
     # min_capacity_activity.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityLowerLimit.csv",
-    #                              index=False)
+                                #  index=False)
 
 
 ## TODO Make it snakemake processes
@@ -243,7 +248,7 @@ def main(scenario, region_codes, timeslice, country_full_name, emissions, start_
     TechUpperLim_df = pd.concat([TechUpperLim_df, TechUpperLim], ignore_index=True)
     TechUpperLim_df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityUpperLimit.csv", index=False)
 ### TechnologyActivityByModeLowerLimit
-    LandRegion = 'KEN'
+    LandRegion = 'PHL'
     TechModeLowerLim = []
     
     with open(yaml_data['OperationModes'], 'r') as f:
@@ -259,7 +264,7 @@ def main(scenario, region_codes, timeslice, country_full_name, emissions, start_
             if col in ['Cropland', 'Forest land', 'Other agricultural land']:
                 continue
             else:
-                value = (cluster_category_totals.loc[cluster_num - 1, col])/1000
+                value = (cluster_category_totals.loc[cluster_num - 1, col]) / 1000
                 for year in yaml_data['Years']:
                     year = int(year)
                     TechModeLowerLim.append([
@@ -267,16 +272,14 @@ def main(scenario, region_codes, timeslice, country_full_name, emissions, start_
                         "LNDAGR" + LandRegion + "C" + str(cluster_num).zfill(2),
                         mode_idx,
                         year,
-                        value#.round()
+                        value
                     ])
 
     TechModeLowerLim = pd.DataFrame(
         TechModeLowerLim,
         columns=['REGION','TECHNOLOGY','MODE_OF_OPERATION','YEAR','VALUE'])
-
-    #TechModeLowerLim = TechModeLowerLim[TechModeLowerLim["VALUE"] != 0]
-
     TechModeLowerLim.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TechnologyActivityByModeLowerLimit.csv", index=False)
+
     # TechnologyActivityByModeUpperLimit create empty dataframe
     TechModeUpperLim = pd.DataFrame(
         columns=['REGION','TECHNOLOGY','MODE_OF_OPERATION','YEAR','VALUE'])
@@ -303,7 +306,6 @@ def main(scenario, region_codes, timeslice, country_full_name, emissions, start_
                     year,
                     value
                 ])
-
     VarCost = pd.DataFrame(
         VarCost,
         columns=['REGION', "TECHNOLOGY", "MODE_OF_OPERATION", "YEAR", "VALUE"])
@@ -353,9 +355,9 @@ if __name__ == "__main__":
         project_end_year = snakemake.config['endYear']
 
     else:
-        project_scenario = "Kenya"
+        project_scenario = "Philippines"
         project_region_codes = {
-                  'KEN': 'KENXX',
+                  'PHL': 'PHLXX',
         }
         project_timeslice = {
               'S1D1': ['Season 1 intermediate', ''],
@@ -363,8 +365,8 @@ if __name__ == "__main__":
               'S2D1': ['Season 2 intermediate', ''],
               'S2D2': ['Season 2 peak', '']
 }
-        project_country = 'Kenya'
-        project_emissions = ['CO2KEN']
+        project_country = 'Philippines'
+        project_emissions = ['CO2PHL']
         project_start_year = 2020
         project_end_year = 2035
     main(project_scenario, project_region_codes, project_timeslice, project_country, project_emissions, project_start_year, project_end_year)
