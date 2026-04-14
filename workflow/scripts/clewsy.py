@@ -125,11 +125,13 @@ def demand_projection(demand, country_full_name, scenario, start_year, end_year)
 
 
 def cost_land_tech(scenario, start_year, end_year):
+    code = pd.read_csv(
+    f'{ROOT_DIR}/workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/Country_code.csv').set_index(
+    "Full_name").to_dict()  # More info: https://www.nationsonline.org/oneworld/country_code_list.htm
+    country_code = code['country_code'][scenario]
     tech_list = list(pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TECHNOLOGY.csv")["VALUE"])
     high_irrigation_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("HITOT")]
     high_rainfed_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("HRTOT")]
-    #intermediate_irrigation_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("IITOT")]
-    #intermediate_rainfed_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("IRTOT")]
     low_irrigation_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("LITOT")]
     low_rainfed_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("LRTOT")]
     cluster_name_pr = [i for i in tech_list if i.startswith("LNDAGR")][0][:-2]
@@ -155,7 +157,7 @@ def cost_land_tech(scenario, start_year, end_year):
     max_capacity = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalAnnualMaxCapacity.csv")
     max_capacity_activity = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityUpperLimit.csv")
     min_capacity_activity = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityLowerLimit.csv")
-    land_cover_info = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/geoclews/summary_stats/PHL_LandCover_byCluster_summary.csv")
+    land_cover_info = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/geoclews/summary_stats/{country_code}_LandCover_byCluster_summary.csv")
     cluster_lists = land_cover_info["clusters_yield"].tolist()
     land_cover_info.set_index(["clusters_yield"], inplace=True)
     # for cluster_number  in cluster_lists:
@@ -248,7 +250,6 @@ def main(scenario, region_codes, timeslice, country_full_name, emissions, start_
     TechUpperLim_df = pd.concat([TechUpperLim_df, TechUpperLim], ignore_index=True)
     TechUpperLim_df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TotalTechnologyAnnualActivityUpperLimit.csv", index=False)
 ### TechnologyActivityByModeLowerLimit
-    LandRegion = 'PHL'
     TechModeLowerLim = []
     
     with open(yaml_data['OperationModes'], 'r') as f:
@@ -355,9 +356,9 @@ if __name__ == "__main__":
         project_end_year = snakemake.config['endYear']
 
     else:
-        project_scenario = "Philippines"
+        project_scenario = "Guyana'"
         project_region_codes = {
-                  'PHL': 'PHLXX',
+                  'GUY': 'GUYXX',
         }
         project_timeslice = {
               'S1D1': ['Season 1 intermediate', ''],
@@ -365,8 +366,8 @@ if __name__ == "__main__":
               'S2D1': ['Season 2 intermediate', ''],
               'S2D2': ['Season 2 peak', '']
 }
-        project_country = 'Philippines'
-        project_emissions = ['CO2PHL']
+        project_country = 'Guyana'
+        project_emissions = ['CO2GUY']
         project_start_year = 2020
         project_end_year = 2035
     main(project_scenario, project_region_codes, project_timeslice, project_country, project_emissions, project_start_year, project_end_year)
