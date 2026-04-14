@@ -1,0 +1,87 @@
+code,name_english,name_spanish,colour
+BIO,Biomass,Biomasa,forestgreen
+COA,Coal,Carb�n,saddlebrown
+CRU,Crude oil,Petr�leo crudo,red
+DSL,Diesel,Di�sel,orange
+ELC,Electricity,Electricidad,grey
+GEO,Geothermal,Geot�rmica,purple
+GSL,Gasoline,Gasolina,orange
+HFO,HFO,HFO,brown
+HYD,Hydro,Hidro,blue
+JFL,Jet fuel,Jet fuel,firebrick
+LNG,LNG,LNG,purple
+LPG,LPG,GLP,gold
+PCK,Petroleum coke,Coque de petr�leo,red
+NGS,Natural gas,Gas natural,purple
+OHC,Oil products,Otros hidrocarburos,grey
+PET,Petroleum products,Petroleum products,red
+SOL,Solar,Solar,gold
+URN,Nuclear,Nuclear,grey
+WAS,MSW,Residuos,green
+WAT,Water,Agua,blue
+LND,Land,Suelo,green
+WND,Wind,E�lica,#EE82EE
+WAV,Wave,,pink
+WON,Wind-Onshore,,lightblue
+FLX,Other Crops,,brown
+MZE,Maize,,green
+OAT,Oat,,beige
+PUL,Pulses,,red
+RAP,Rapeseed Oil,,pink
+SOY,Soy,,lightgreen
+WHT,Wheat,,wheat
+AGR,Agriculture,Tierras agr�colas,brown
+BAR,Barren land,Tierra est�ril,grey
+FOR,Forests,Bosques,forestgreen
+GRS,Grassland & woodland,Praderas y zonas boscosas,orange
+BLT,Built-up land,Asentamientos,black
+OTH,Other Crops,Otras tierras agr�colas,lightblue
+PWR,Power sector,Centrales el�ctricas,red
+PUB,Public supply,Abastecimiento p�blico,grey
+EVT,Evapotranspiration,Evapotranspiraci�n,green
+PRC,Precipitation,Precipitaci�n,blue
+GRC,Groundwater recharge,Recarga de agua subterr�nea,orange
+SUR,Surface water run-off,Agua superficial,red
+IRR,Irrigation,Irrigaci�n,brown
+REN,Other renewables,Otras fuentes renovables,green
+OIL,Oil,Petr�leo,firebrick
+GAS,Gas,Gas,purple
+MAZ,Maize,Ma�z,gold
+SOR,Sorghum,Sorgo,purple
+SOY,Soybean,Soya,firebrick
+BEA,Beans,,brown
+CDA,Sugarcane,Ca�a de az�car,green
+SGC,Sugarcane,Ca�a de az�car,green
+PAP,Potatoes,Papa,orange
+CON,Coconut,,purple
+RCP,Rice,,grey
+TEA,Tea,,#2E7D32
+COW,Cowpeas,,lightgreen
+TLD,Other crops,Otros cultivos,grey
+LPG,LPG,LPG,pink
+KER,Kerosene,Kerosene,#EE82EE
+RES,Residential,Residential,blue
+TRA,Transport,Transport,black
+IND,Industry,Industry,grey
+COM,Commercial & services,Commercial & services,green
+ELC_IMP,Electricity imports,,pink
+PWR_WAT,Power sector (consumptive use),,lightblue
+PWR_WITH,Power sector (withdrawal),,darkblue
+ELC_EXP,Electricity exports,,pink
+ELC_NET,Net electricity imports,,pink
+CCG,Combined Cycle Gas,,cadetblue
+OCG,Open Cycle Gas,,black
+SPV,Solar PV,,darkblue
+WOF,Offshore Wind,,#9370DB
+BMZ,Biofuels from Maize,,brown
+BCS,Biofuels with CCS,,green
+COG,Cogeneration ,,mediumpurple
+SWI,Switchgrass,,green
+BSW,Biofuels from Switchgrass,,brown
+BCW,Biofuels with CCS,,green
+HI,High Intensity Irrigated,,red
+II,Intermediate Intensity Irrigated,,orange
+HR,High Intensity Rainfed,,yellow
+IR,Intermediate Intensity Rainfed,,blue
+LI,Low Intensity Irrigated,,blue
+LR,Low Intensity Rainfed,,#EE82EE
