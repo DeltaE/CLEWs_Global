@@ -80,8 +80,7 @@ def crop_demand(scenario, country_full_name):
     pd.DataFrame(data=demand.keys(), columns=["FUEL"]).to_csv(f"{ROOT_DIR}/results/{scenario}/CROP.csv", index=False)
     return demand
 
-
-def demand_projection(demand, country_full_name, scenario, start_year, end_year):
+def get_growth_factors(country_full_name, start_year, end_year):
     gdp = pd.read_excel(
         f"{ROOT_DIR}/workflow/submodules/osemosys_global/resources/data/default/iamc_db_GDPppp_Countries.xlsx",
         sheet_name="data")
@@ -89,40 +88,70 @@ def demand_projection(demand, country_full_name, scenario, start_year, end_year)
         f"{ROOT_DIR}/workflow/submodules/osemosys_global/resources/data/default/iamc_db_POP_Countries.xlsx",
         sheet_name="data")
     code = pd.read_csv(
-        f'{ROOT_DIR}/workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/Country_code.csv').set_index(
-        "Full_name").to_dict()  # More info: https://www.nationsonline.org/oneworld/country_code_list.htm
+        f'{ROOT_DIR}/workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/Country_code.csv'
+    ).set_index("Full_name").to_dict()
+
     country_code = code['country_code'][country_full_name]
+
     gdp = gdp[(gdp['Scenario'] == "SSP2") & (gdp['Region'] == country_code) & (gdp['Model'] == 'OECD Env-Growth')]
     pop = pop[(pop['Scenario'] == "SSP2") & (pop['Region'] == country_code) & (pop['Model'] == 'IIASA-WiC POP')]
+
     base_gdp = gdp.transpose().loc[[2010 + i for i in range(0, 95, 5)], ]
     base_gdp.rename(columns={base_gdp.columns[0]: 'GDP'}, inplace=True)
+
     base_pop = pop.transpose().loc[[2010 + i for i in range(0, 95, 5)], ]
     base_pop.rename(columns={base_pop.columns[0]: 'POP'}, inplace=True)
-    df_gdp = pd.DataFrame(data=None, index=[2015 + i for i in range(end_year - 2015 + 1)])
+
+    df_gdp = pd.DataFrame(index=[2015 + i for i in range(end_year - 2015 + 1)])
     df_gdp = df_gdp.join(base_gdp, how="left")
     df = df_gdp.join(base_pop, how="left")
+
     result = df.astype(float).interpolate()
     result = result.loc[start_year:end_year]
+
     for column in result.columns:
-        result[column] = result[column].apply(lambda x: x / result.loc[start_year, column] - 1)
+        result[column] = result[column].apply(
+            lambda x: x / result.loc[start_year, column] - 1
+        )
+
+    return result
+
+def demand_projection(demand, country_full_name, scenario, start_year, end_year):
+    result = get_growth_factors(country_full_name, start_year, end_year)
+
     final_df = pd.DataFrame(columns=["REGION", "FUEL", "YEAR", "VALUE"])
+
     gdp_factor = 0
     pop_factor = 1
+
     for crop in demand:
         # Crop demand increasing
-        demand_data = (1 + result["GDP"] * gdp_factor + result["POP"] * pop_factor) * demand[crop]
-        # flat crop demand:
-        # demand_data = demand[crop]   
-        # demand_data = [demand_data] * len(result.index)
+        demand_data = (
+            1
+            + result["GDP"] * gdp_factor
+            + result["POP"] * pop_factor
+        ) * demand[crop]
 
-        interim_df = pd.DataFrame({'YEAR': result.index, "VALUE": demand_data}, columns=["REGION", "FUEL", "YEAR", "VALUE"])
+        interim_df = pd.DataFrame({
+            "YEAR": result.index,
+            "VALUE": demand_data
+        })
+
         interim_df["FUEL"] = f"CRP{crop}"
-        final_df = pd.concat([final_df, interim_df], ignore_index=True)
-    final_df["REGION"] = "GLOBAL"
-    accumulated_a_demand = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/AccumulatedAnnualDemand.csv")
-    final_df = pd.concat([final_df, accumulated_a_demand], ignore_index=True)
-    final_df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/AccumulatedAnnualDemand.csv", index=False)
+        interim_df["REGION"] = "GLOBAL"
 
+        final_df = pd.concat([final_df, interim_df], ignore_index=True)
+
+    accumulated_a_demand = pd.read_csv(
+        f"{ROOT_DIR}/results/{scenario}/clewsy/AccumulatedAnnualDemand.csv"
+    )
+
+    final_df = pd.concat([final_df, accumulated_a_demand], ignore_index=True)
+
+    final_df.to_csv(
+        f"{ROOT_DIR}/results/{scenario}/clewsy/AccumulatedAnnualDemand.csv",
+        index=False
+    )
 
 def cost_land_tech(scenario, start_year, end_year):
     code = pd.read_csv(
@@ -259,22 +288,31 @@ def main(scenario, region_codes, timeslice, country_full_name, emissions, start_
         if col in ModeList
     ]
 
-    for cluster_num in range(1, len(cluster_category_totals)+1):
+    growth_factors = get_growth_factors(country_full_name, start_year, end_year)
+    for cluster_num in range(1, len(cluster_category_totals) + 1):
         for col in category_columns:
             mode_idx = ModeList.index(col) + 1
+
             if col in ['Cropland', 'Forest land', 'Other agricultural land']:
                 continue
-            else:
-                value = (cluster_category_totals.loc[cluster_num - 1, col]) / 1000
-                for year in yaml_data['Years']:
-                    year = int(year)
-                    TechModeLowerLim.append([
-                        next(iter(yaml_data['Regions'])),
-                        "LNDAGR" + LandRegion + "C" + str(cluster_num).zfill(2),
-                        mode_idx,
-                        year,
-                        value
-                    ])
+
+            base_value = (cluster_category_totals.loc[cluster_num - 1, col]) / 1000
+
+            for year in yaml_data['Years']:
+                year = int(year)
+
+                if col == 'Built-up land':
+                    value = base_value * (1 + growth_factors.loc[year, "POP"])
+                else:
+                    value = base_value
+
+                TechModeLowerLim.append([
+                    next(iter(yaml_data['Regions'])),
+                    "LNDAGR" + LandRegion + "C" + str(cluster_num).zfill(2),
+                    mode_idx,
+                    year,
+                    value
+                ])
 
     TechModeLowerLim = pd.DataFrame(
         TechModeLowerLim,
