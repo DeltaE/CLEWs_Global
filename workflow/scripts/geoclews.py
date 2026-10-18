@@ -1,21 +1,49 @@
-import os
+import yaml
+import subprocess
 import shutil
-import pandas as pd
-from constants import ROOT_DIR
+import os
 
 
-def main():
+def yaml_change(geoclews_path):
+    with open('config/config.yaml', 'r') as f:
+        config_dict = yaml.safe_load(f)
+
+    with open(f"{geoclews_path}/GAEZ_Processing/user_input/config.yaml", 'r') as fo:
+        geoclews_config = yaml.safe_load(fo)
+    for item in geoclews_config:
+        geoclews_config[item] = config_dict[item]
+    with open(f"{geoclews_path}/GAEZ_Processing/user_input/config.yaml", 'w') as fo:
+        yaml.safe_dump(
+        geoclews_config, 
+        fo, 
+        allow_unicode=True, 
+        sort_keys=False      
+    )
+
+
+def user_input_copy(geoclews_path):
+    shapefiles = [i for i in os.listdir("data/user_input") if i.endswith(("cpg", "dbf", "prj", "shp", "shx"))]
+    for shapefile in shapefiles:
+        shutil.copy(f"data/user_input/{shapefile}", f"{geoclews_path}/GAEZ_Processing/user_input/shapefile/{shapefile}")
+
+
+def geoclews_run(geoclews_path):
     try:
-        shutil.copyfile(f"{ROOT_DIR}/config/config.yaml",
-                    f"{ROOT_DIR}/workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/user_input/config.yaml")
-        os.system(f"python {ROOT_DIR}/workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/main.py")
-    except shutil.SameFileError:
-        os.remove(f'{ROOT_DIR}/workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/user_input/config.yaml')
-        shutil.copyfile(f"{ROOT_DIR}/config/config.yaml",
-                    f"{ROOT_DIR}/workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/user_input/config.yaml")
-        os.system(f"python {ROOT_DIR}/workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/main.py")
-
+        subprocess.run(
+            ["python", "GAEZ_Processing/main.py"],
+            cwd = geoclews_path,
+            check = True
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"GeoCLEWs failed: {e}")
+        raise
 
 
 if __name__ == '__main__':
-    main()
+    if "snakemake" in globals():
+        directory = snakemake.config["geoclews"]["dir"]
+    else:
+        directory = "../CLEWs_GAEZ"
+    yaml_change(directory)
+    user_input_copy(directory)
+    geoclews_run(directory)

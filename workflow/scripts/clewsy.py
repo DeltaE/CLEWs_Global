@@ -4,19 +4,20 @@ import numpy as np
 import os
 import subprocess
 import shutil
-from constants import ROOT_DIR
 import collections
 import math
+from pathlib import Path
+ROOT_DIR = Path(__file__).parent.parent.parent
 
 
-def modify_yaml(scenario, region_codes, timeslice, emissions):
+def modify_yaml(clewsy_path, scenario, region_codes, timeslice, emissions):
     yaml_file =f"{ROOT_DIR}/config/clews_config/clewsy_template.yaml"
     with open(yaml_file, "r") as f:
         data = yaml.load(f, Loader=yaml.SafeLoader)
     data["Model"] = scenario
     data["otooleOutputDirectory"] = f"{ROOT_DIR}/results/{scenario}/clewsy"
     data["DataDirectoryName"] = f"{ROOT_DIR}/results/{scenario}/geoclews/summary_stats"
-    data["OperationModes"] = f"{ROOT_DIR}/workflow/submodules/clewsy/optn_mds.txt"
+    data["OperationModes"] = f"config/clews_config/optn_mds.txt"
     data["OsemosysGlobalPath"] = f"{ROOT_DIR}/results/{scenario}/osemosys_global"
     data["Years"] = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/osemosys_global/YEAR.csv").VALUE.to_list()
     data["LandRegions"] = list(region_codes.keys())
@@ -35,11 +36,9 @@ def modify_yaml(scenario, region_codes, timeslice, emissions):
 
     crop_list = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/CROP.csv").to_dict()['FUEL'].values()
     
-    if "CropYieldFactors" not in data or not data["CropYieldFactors"]:
-    # If 'CropYieldFactors' is missing or empty, assign 1 to each crop in crop_list
-        data["CropYieldFactors"] = {i: 1 for i in crop_list}
-    else:
-        data["CropYieldFactors"] = data["CropYieldFactors"]
+
+    data["CropYieldFactors"] = {i: 1 for i in crop_list}
+
     print(data["CropYieldFactors"])
     with open(f"{ROOT_DIR}/config/clews_config/clewsy.yaml", "w") as f:
         yaml.dump(data, f)
@@ -47,7 +46,7 @@ def modify_yaml(scenario, region_codes, timeslice, emissions):
     return data
 
 
-def crop_demand(scenario, country_full_name):
+def crop_demand(geoclews_path, scenario, country_full_name):
     def set_crop_code(row):
         if row["Item"] in other_crops:
             return "OTH"
@@ -57,7 +56,7 @@ def crop_demand(scenario, country_full_name):
             return row["Code"]
 
 
-    data = pd.read_csv(f"{ROOT_DIR}/workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/FAOSTAT_2020.csv")
+    data = pd.read_csv(f"{geoclews_path}/GAEZ_Processing/Data/FAOSTAT_2020.csv")
     filtered_data = data[data['Area'] == country_full_name]
 
     top_10_values = filtered_data.nlargest(10, 'Value')
@@ -69,7 +68,7 @@ def crop_demand(scenario, country_full_name):
     filtered_data = data[data['Area'] == country_full_name]
     filtered_data = filtered_data[filtered_data['Item'].isin(all_crops)].set_index('Item')
     crop_code = pd.read_csv(
-        f'{ROOT_DIR}/workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/Crop_code.csv').set_index('Name')
+        f'{geoclews_path}/GAEZ_Processing/Data/Crop_code.csv').set_index('Name')
     data_classified = filtered_data.join(crop_code, how="left")[["Code", "Value"]].reset_index()
     data_classified["Code"] = data_classified.apply(set_crop_code, axis=1)
     data_summarized = data_classified.groupby(['Code']).sum('Value').to_dict()
@@ -80,15 +79,15 @@ def crop_demand(scenario, country_full_name):
     pd.DataFrame(data=demand.keys(), columns=["FUEL"]).to_csv(f"{ROOT_DIR}/results/{scenario}/CROP.csv", index=False)
     return demand
 
-def get_growth_factors(country_full_name, start_year, end_year):
+def get_growth_factors(og_path, geoclews_path, country_full_name, start_year, end_year):
     gdp = pd.read_excel(
-        f"{ROOT_DIR}/workflow/submodules/osemosys_global/resources/data/default/iamc_db_GDPppp_Countries.xlsx",
+        f"{og_path}/resources/data/default/iamc_db_GDPppp_Countries.xlsx",
         sheet_name="data")
     pop = pd.read_excel(
-        f"{ROOT_DIR}/workflow/submodules/osemosys_global/resources/data/default/iamc_db_POP_Countries.xlsx",
+        f"{og_path}/resources/data/default/iamc_db_POP_Countries.xlsx",
         sheet_name="data")
     code = pd.read_csv(
-        f'{ROOT_DIR}/workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/Country_code.csv'
+        f'{geoclews_path}/GAEZ_Processing/Data/Country_code.csv'
     ).set_index("Full_name").to_dict()
 
     country_code = code['country_code'][country_full_name]
@@ -116,8 +115,8 @@ def get_growth_factors(country_full_name, start_year, end_year):
 
     return result
 
-def demand_projection(demand, country_full_name, scenario, start_year, end_year):
-    result = get_growth_factors(country_full_name, start_year, end_year)
+def demand_projection(og_path, geoclews_path, demand, country_full_name, scenario, start_year, end_year):
+    result = get_growth_factors(og_path, geoclews_path, country_full_name, start_year, end_year)
 
     final_df = pd.DataFrame(columns=["REGION", "FUEL", "YEAR", "VALUE"])
 
@@ -153,11 +152,11 @@ def demand_projection(demand, country_full_name, scenario, start_year, end_year)
         index=False
     )
 
-def cost_land_tech(scenario, start_year, end_year):
+def cost_land_tech(geoclews_path, scenario, start_year, end_year, country_full_name):
     code = pd.read_csv(
-    f'{ROOT_DIR}/workflow/submodules/CLEWs_GAEZ/GAEZ_Processing/Data/Country_code.csv').set_index(
+    f'{geoclews_path}/GAEZ_Processing/Data/Country_code.csv').set_index(
     "Full_name").to_dict()  # More info: https://www.nationsonline.org/oneworld/country_code_list.htm
-    country_code = code['country_code'][scenario]
+    country_code = code['country_code'][country_full_name]
     tech_list = list(pd.read_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/TECHNOLOGY.csv")["VALUE"])
     high_irrigation_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("HITOT")]
     high_rainfed_tech = [i for i in tech_list if i.startswith("LND") and i.endswith("HRTOT")]
@@ -209,7 +208,7 @@ def cost_land_tech(scenario, start_year, end_year):
 
 
 ## TODO Make it snakemake processes
-def main(scenario, region_codes, timeslice, country_full_name, emissions, start_year, end_year):
+def main(og_path, geoclews_path, clewsy_path, scenario, region_codes, timeslice, country_full_name, emissions, start_year, end_year):
     try:
         shutil.copy(f"{ROOT_DIR}/results/{scenario}/osemosys_global/FUEL.csv",
                     f"{ROOT_DIR}/results/{scenario}/osemosys_global/COMMODITY.csv")
@@ -217,17 +216,15 @@ def main(scenario, region_codes, timeslice, country_full_name, emissions, start_
         os.remove(f"{ROOT_DIR}/results/{scenario}/osemosys_global/COMMODITY.csv")
         shutil.copy(f"{ROOT_DIR}/results/{scenario}/osemosys_global/FUEL.csv",
                     f"{ROOT_DIR}/results/{scenario}/osemosys_global/COMMODITY.csv")
-    demand = crop_demand(scenario, country_full_name)
-    yaml_data = modify_yaml(scenario, region_codes, timeslice, emissions)
-    subprocess.run(['python', 'workflow/submodules/clewsy/src/build/clewsy.py', 'config/clews_config/clewsy.yaml'], input='Y', text=True)
+    demand = crop_demand(geoclews_path, scenario, country_full_name)
+    yaml_data = modify_yaml(clewsy_path, scenario, region_codes, timeslice, emissions)
+    subprocess.run(['python', f'{clewsy_path}/src/build/clewsy.py', 'config/clews_config/clewsy.yaml'], input='Y', text=True)
     try:
         os.remove(f"{ROOT_DIR}/results/{scenario}/clewsy/COMMODITY.csv")
     except FileNotFoundError:
         print("COMMODITY.csv not found")
-    with open(f"{ROOT_DIR}/results/{scenario}/clewsy/EMISSION.csv", "w") as f:
-        f.write("VALUE\n")
-        for i in emissions:
-            f.write(f"{i}\n")
+    df = pd.DataFrame({'VALUE': emissions})
+    df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/EMISSION.csv", index=False)
     # new parameters here
     land_mapping = {
 "LCType1": "Cropland",
@@ -288,7 +285,7 @@ def main(scenario, region_codes, timeslice, country_full_name, emissions, start_
         if col in ModeList
     ]
 
-    growth_factors = get_growth_factors(country_full_name, start_year, end_year)
+    growth_factors = get_growth_factors(og_path, geoclews_path, country_full_name, start_year, end_year)
     for cluster_num in range(1, len(cluster_category_totals) + 1):
         for col in category_columns:
             mode_idx = ModeList.index(col) + 1
@@ -367,8 +364,8 @@ def main(scenario, region_codes, timeslice, country_full_name, emissions, start_
         columns=['REGION', "TECHNOLOGY", "VALUE"])
     operational_life_df = pd.concat([operational_life_df, OL], ignore_index=True)
     operational_life_df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/OperationalLife.csv", index=False)
-    demand_projection(demand, country_full_name, scenario, start_year, end_year)
-    cost_land_tech(scenario, start_year, end_year)
+    demand_projection(og_path, geoclews_path, demand, country_full_name, scenario, start_year, end_year)
+    cost_land_tech(geoclews_path, scenario, start_year, end_year, country_full_name)
 
     data_out_path = f"{ROOT_DIR}/results/{scenario}/clewsy"
     data_text = f"{ROOT_DIR}/results/{scenario}/data"
@@ -392,6 +389,9 @@ if __name__ == "__main__":
         project_emissions = snakemake.config['emissions']
         project_start_year = snakemake.config['startYear']
         project_end_year = snakemake.config['endYear']
+        osemosys_directory = snakemake.config['osemosys']['dir']
+        geoclews_directory = snakemake.config['geoclews']['dir']
+        clewsy_directory = snakemake.config['clewsy']['dir']
 
     else:
         project_scenario = "Guyana'"
@@ -408,4 +408,7 @@ if __name__ == "__main__":
         project_emissions = ['CO2GUY']
         project_start_year = 2020
         project_end_year = 2035
-    main(project_scenario, project_region_codes, project_timeslice, project_country, project_emissions, project_start_year, project_end_year)
+        osemosys_directory = "../osemosys_global"
+        geoclews_directory = "../CLEWs_GAEZ"
+        clewsy_directory = "../clewsy"
+    main(osemosys_directory, geoclews_directory, clewsy_directory, project_scenario, project_region_codes, project_timeslice, project_country, project_emissions, project_start_year, project_end_year)

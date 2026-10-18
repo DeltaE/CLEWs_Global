@@ -1,6 +1,14 @@
+# config.yaml
+osemosys:
+  dir: "../osemosys_global"  # path to OSeMOSYS Global
+  jobs: 10                         # Number of jobs for OSeMOSYS Global
+geoclews:
+  dir: "../CLEWs_GAEZ"
+clewsy:
+  dir: "../clewsy"
 # Scenario Name
-scenario: "Guyana"
-country_full_name: "Guyana"
+scenario: "Suriname10172214"
+country_full_name: "Suriname"
 # Temporal Parameters
 startYear: 2021
 endYear: 2050
@@ -25,7 +33,7 @@ timeshift: 0 # value between -11 and 12
 
 # Spatial Parameters
 geographic_scope:
-  - "GUY"
+  - "SUR"
 
 # Set to True if transmission should be included
 crossborderTrade: True
@@ -57,7 +65,7 @@ emission_penalty:
 # - [EMISSION, COUNTRY, START_YEAR, END_YEAR, VALUE]
 # EXAMPLE:  - ["CO2", "IND", 2020, 2050, 2.1]
 # where VALUE is in M$/MT CO2
- - ["CO2", "GUY", 2021, 2050, 2.1]
+ - ["CO2", "SUR", 2021, 2050, 2.1]
 
 # Investment Parameters
 no_invest_technologies:
@@ -188,7 +196,7 @@ reserve_margin_technologies:
 
 emission_limit:
 # - [EMISSION, COUNTRY, TYPE, YEAR, VALUE]
- - ["CO2", "GUY", "LINEAR", 2050, 0]
+ - ["CO2", "SUR", "LINEAR", 2050, 0]
 # where VALUE is emissions in million tonnes of CO2-equivalent and YEAR is
 # when that constraint must be adhered to. All years between multiple emission
 # constraints will be interpolated if TYPE is set to "LINEAR". If "POINT" is used
@@ -267,16 +275,17 @@ region_per_group: 10
 # Coordinate and projection systems
 # More info: http://epsg.io/
 crs_WGS84: "EPSG:4326"
-crs_proj: "EPSG:24821"
+crs_proj: "EPSG:32621"
 
 number_of_clusters: {
 
-    'GUY': 4,
+    'SUR': 4,
 }
 
 region_codes: {
-    GUY: GUYXX,
+    SUR: SURXX,
   }
 
 emissions:
-  - CO2GUY
+  - CO2SUR
+  - CO2RUS
