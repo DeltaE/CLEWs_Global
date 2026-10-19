@@ -10,6 +10,14 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).parent.parent.parent
 
 
+def modify_mds(scenario, optn_mds_path):
+    crop_list = pd.read_csv(f"{ROOT_DIR}/results/{scenario}/CROP.csv").to_dict()['FUEL'].values()
+    mds_list = [f"{i}{j}{k}" for i in crop_list if i != "OTH" for j in ["H", "L"] for k in ["I", "R"]]
+    mds_list.extend(['OTHLR', 'Barren and sparsely vegetated land', 'Built-up land', 'Forest land', 'Grassland & woodland', 'Other agricultural land', 'Water bodies'])
+    with open(optn_mds_path, 'w') as f:
+        f.write(", ".join(mds_list))
+
+
 def modify_yaml(clewsy_path, scenario, region_codes, timeslice, emissions):
     yaml_file =f"{ROOT_DIR}/config/clews_config/clewsy_template.yaml"
     with open(yaml_file, "r") as f:
@@ -142,11 +150,11 @@ def demand_projection(og_path, geoclews_path, demand, country_full_name, scenari
         final_df = pd.concat([final_df, interim_df], ignore_index=True)
 
     accumulated_a_demand = pd.read_csv(
-        f"{ROOT_DIR}/results/{scenario}/clewsy/AccumulatedAnnualDemand.csv"
+        f"{ROOT_DIR}/results/{scenario}/osemosys_global/AccumulatedAnnualDemand.csv"
     )
 
     final_df = pd.concat([final_df, accumulated_a_demand], ignore_index=True)
-
+    final_df.drop_duplicates(inplace=True)
     final_df.to_csv(
         f"{ROOT_DIR}/results/{scenario}/clewsy/AccumulatedAnnualDemand.csv",
         index=False
@@ -218,6 +226,7 @@ def main(og_path, geoclews_path, clewsy_path, scenario, region_codes, timeslice,
                     f"{ROOT_DIR}/results/{scenario}/osemosys_global/COMMODITY.csv")
     demand = crop_demand(geoclews_path, scenario, country_full_name)
     yaml_data = modify_yaml(clewsy_path, scenario, region_codes, timeslice, emissions)
+    modify_mds(scenario, yaml_data['OperationModes'])
     subprocess.run(['python', f'{clewsy_path}/src/build/clewsy.py', 'config/clews_config/clewsy.yaml'], input='Y', text=True)
     try:
         os.remove(f"{ROOT_DIR}/results/{scenario}/clewsy/COMMODITY.csv")
@@ -279,7 +288,7 @@ def main(og_path, geoclews_path, clewsy_path, scenario, region_codes, timeslice,
     TechModeLowerLim = []
     
     with open(yaml_data['OperationModes'], 'r') as f:
-        ModeList = [m.strip().strip("'") for m in f.read().split(",") if m.strip()]
+        ModeList = [m.strip() for m in f.read().split(",") if m.strip()]
     category_columns = [
         col for col in cluster_category_totals.columns
         if col in ModeList
@@ -365,6 +374,7 @@ def main(og_path, geoclews_path, clewsy_path, scenario, region_codes, timeslice,
     operational_life_df = pd.concat([operational_life_df, OL], ignore_index=True)
     operational_life_df.to_csv(f"{ROOT_DIR}/results/{scenario}/clewsy/OperationalLife.csv", index=False)
     demand_projection(og_path, geoclews_path, demand, country_full_name, scenario, start_year, end_year)
+    
     cost_land_tech(geoclews_path, scenario, start_year, end_year, country_full_name)
 
     data_out_path = f"{ROOT_DIR}/results/{scenario}/clewsy"
@@ -377,7 +387,8 @@ def main(og_path, geoclews_path, clewsy_path, scenario, region_codes, timeslice,
         f"glpsol -m {ROOT_DIR}/config/clews_config/osemosys_fast_preprocessed.txt -d {data_text}_pp.txt --wlp {data_text}.lp --check")
     os.system(f"cbc {data_text}.lp solve -solu {data_text}.sol")
     os.system(f"otoole -v results cbc csv {data_text}.sol {ROOT_DIR}/results/{scenario}/results datafile {data_text}.txt {clewsy_otoole_config}")
-    print("clewsy finished successfully")
+    shutil.rmtree(f"{ROOT_DIR}/results/{scenario}/clewsy")
+    print("clewsy finished")
 
 
 if __name__ == "__main__":
